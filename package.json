@@ -1,7 +1,7 @@
 {
   "name": "stremio-account-addon-cloner",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:debug": "cross-env NODE_OPTIONS=--inspect next dev",
@@ -13,8 +13,7 @@
   "dependencies": {
     "next": "15.4.6",
     "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "stremio-api-client": "^1.6.0"
+    "react-dom": "19.1.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
