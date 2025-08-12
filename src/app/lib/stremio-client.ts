@@ -6,7 +6,10 @@ const makeRequest = async (options: { path: string, params: any }) => {
     });
 
     const result = await res.json();
-    if (!res.ok) throw new Error(result.error || "Unknown error");
+    if (!res.ok || result.error) {
+        const message = `Issue occurred during ${options.path}: ${JSON.stringify(result.error) || "Unknown error"}`
+        throw new Error(message);
+    }
 
     return result;
 }

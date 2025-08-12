@@ -53,16 +53,21 @@ export async function POST(req: Request) {
 
     const primaryAddons = await getAddons(primaryAuth);
 
-    // Push to each clone account
+    let cloneAuthKeys: string[] = [];
+
     for (const acc of clones) {
       const cloneAuth = await getAuth(acc);
+      cloneAuthKeys.push(cloneAuth);
+    }
 
+    // Push to each clone account
+    for (const cloneAuth of cloneAuthKeys) {
       await pushAddonCollection(cloneAuth, primaryAddons);
     }
 
     return NextResponse.json({ message: "Addons cloned successfully" });
   } catch (err: any) {
-    console.error("Error cloning addons:", err);
+    console.error("Error cloning addons:", err.message);
     return NextResponse.json(
       { error: "Failed to clone addons", details: err.message },
       { status: 500 }

@@ -46,7 +46,38 @@ export default function Home() {
     setPrimaryAccount({ ...primaryAccount, [field]: value });
   };
 
+  const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
   const handleSubmit = async () => {
+    // Check primary account
+    if (primaryAccount.mode === "credentials") {
+      if (!primaryAccount.email || !primaryAccount.password) {
+        setAlert({ type: "error", message: "Primary account email and password are required." });
+        return;
+      }
+    } else if (primaryAccount.mode === "authkey") {
+      if (!primaryAccount.authkey) {
+        setAlert({ type: "error", message: "Primary account auth key is required." });
+        return;
+      }
+    }
+
+    // Check clone accounts
+    for (let i = 0; i < cloneAccounts.length; i++) {
+      const acc = cloneAccounts[i];
+      if (acc.mode === "credentials") {
+        if (!acc.email || !acc.password) {
+          setAlert({ type: "error", message: `Clone account #${i + 1}: Email and password are required.` });
+          return;
+        }
+      } else if (acc.mode === "authkey") {
+        if (!acc.authkey) {
+          setAlert({ type: "error", message: `Clone account #${i + 1}: Auth key is required.` });
+          return;
+        }
+      }
+    }
+
     try {
       const data = JSON.stringify({ primary: primaryAccount, clones: cloneAccounts })
 
@@ -57,11 +88,11 @@ export default function Home() {
       });
 
       const result = await res.json();
-      if (!res.ok) throw new Error(result.error || "Unknown error");
+      if (!res.ok) throw new Error(result.details || "Unknown error");
 
-      alert("✅ Addons cloned successfully!");
+      setAlert({ type: "success", message: "Addons cloned successfully!" });
     } catch (err: any) {
-      alert(`❌ Failed: ${err.message}`);
+      setAlert({ type: "error", message: `Failed to clone addons: ${err.message || err}` });
     }
   };
 
@@ -78,6 +109,24 @@ export default function Home() {
           </p>
         </div>
       </header>
+
+      {/* Alert */}
+      {alert && (
+        <div
+          className={`fixed top-4 right-4 p-4 rounded-lg shadow-lg text-white transition-all duration-300 ${alert.type === "success" ? "bg-green-500" : "bg-red-500"
+            }`}
+        >
+          <div className="flex justify-between items-center space-x-4">
+            <span>{alert.message}</span>
+            <button
+              className="text-white font-bold"
+              onClick={() => setAlert(null)}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="w-full max-w-lg bg-gray-800 rounded-2xl shadow p-6 space-y-6 mt-6">
