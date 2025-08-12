@@ -38,13 +38,13 @@ export async function POST(req: Request) {
 
 
   const getAddons = async (authKey: string) => {
-    let primaryAddons = [];
+    let addons = [];
 
-    const primaryCollection = await pullAddonCollection(authKey);
+    const collection = await pullAddonCollection(authKey);
 
-    primaryAddons = primaryCollection.result.addons;
+    addons = collection.result.addons;
 
-    return primaryAddons;
+    return addons;
   }
 
   try {
