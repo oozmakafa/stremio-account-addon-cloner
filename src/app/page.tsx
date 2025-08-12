@@ -210,7 +210,7 @@ export default function Home() {
                         <li>
                           Run:{" "}
                           <code className="bg-gray-700 px-1 py-0.5 rounded break-all">
-                            JSON.parse(localStorage.getItem("profile")).auth.key
+                            JSON.parse(localStorage.getItem(&quot;profile&quot;)).auth.key
                           </code>
                         </li>
                         <li>Copy the output and paste it here</li>
@@ -355,7 +355,7 @@ export default function Home() {
         </div>
       </div>
       <footer className="mt-10 py-6 text-center text-gray-400 text-sm">
-        Built with ☕, 💻, and a dash of 🍯 —{" "}
+        Built with ☕, 💻, a dash of 🍯 and help of ChatGPT—{" "}
         <a
           href="https://github.com/oozmakafa/stremio-account-addon-cloner"
           target="_blank"
