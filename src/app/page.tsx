@@ -304,6 +304,17 @@ export default function Home() {
           </button>
         </div>
       </div>
+      <footer className="mt-10 py-6 text-center text-gray-400 text-sm">
+        Built with ☕, 💻, and a dash of 🍯 —{" "}
+        <a
+          href="https://github.com/oozmakafa/stremio-account-addon-cloner"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-400 hover:underline"
+        >
+          View Source
+        </a>
+      </footer>
     </main>
   );
 }
