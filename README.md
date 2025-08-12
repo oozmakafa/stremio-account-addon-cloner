@@ -5,6 +5,9 @@ Styled with **Tailwind CSS**.
 
 ---
 
+## Vercel Instance
+https://stremio-account-addon-cloner.vercel.app/
+
 ## 🚀 Features
 
 - 🔑 **Login with Email/Password or Auth Key**
