@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
 
   const getAddons = async (authKey: string) => {
-    let primaryAddons = [] as any[];
+    let primaryAddons = [];
 
     const primaryCollection = await pullAddonCollection(authKey);
 
@@ -53,7 +53,7 @@ export async function POST(req: Request) {
 
     const primaryAddons = await getAddons(primaryAuth);
 
-    let cloneAuthKeys: string[] = [];
+    const cloneAuthKeys: string[] = [];
 
     for (const acc of clones) {
       const cloneAuth = await getAuth(acc);
@@ -66,11 +66,15 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({ message: "Addons cloned successfully" });
-  } catch (err: any) {
-    console.error("Error cloning addons:", err.message);
-    return NextResponse.json(
-      { error: "Failed to clone addons", details: err.message },
-      { status: 500 }
-    )
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error("Error cloning addons:", err.message);
+      return NextResponse.json(
+        { error: "Failed to clone addons", details: err.message },
+        { status: 500 }
+      )
+    } else {
+      console.error('An unknown error occurred');
+    }
   }
 }

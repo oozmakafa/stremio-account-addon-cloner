@@ -47,6 +47,7 @@ export default function Home() {
   };
 
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async () => {
     // Check primary account
@@ -78,6 +79,10 @@ export default function Home() {
       }
     }
 
+    // Start loading
+    setLoading(true);
+    setAlert(null);
+
     try {
       const data = JSON.stringify({ primary: primaryAccount, clones: cloneAccounts })
 
@@ -91,8 +96,12 @@ export default function Home() {
       if (!res.ok) throw new Error(result.details || "Unknown error");
 
       setAlert({ type: "success", message: "Addons cloned successfully!" });
-    } catch (err: any) {
-      setAlert({ type: "error", message: `Failed to clone addons: ${err.message || err}` });
+    } catch (err) {
+      if (err instanceof Error)
+        setAlert({ type: "error", message: `Failed to clone addons: ${err.message || err}` });
+    }
+    finally {
+      setLoading(false); // Stop loading
     }
   };
 
@@ -288,9 +297,10 @@ export default function Home() {
           <button
             type="button"
             onClick={handleSubmit}
+            disabled={loading}
             className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600"
           >
-            Clone Addon
+            {loading ? "Cloning..." : "Clone Addon"}
           </button>
         </div>
       </div>

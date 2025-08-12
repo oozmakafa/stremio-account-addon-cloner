@@ -1,4 +1,4 @@
-const makeRequest = async (options: { path: string, params: any }) => {
+const makeRequest = async (options: { path: string, params: object }) => {
     const res = await fetch(`https://api.strem.io/api/${options.path}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -22,7 +22,7 @@ const pullAddonCollection = async (authKey: string) => {
     return makeRequest({ path: "addonCollectionGet", params: { authKey } });
 }
 
-const pushAddonCollection = async (authKey: string, addons: any[]) => {
+const pushAddonCollection = async (authKey: string, addons: object[]) => {
     return makeRequest({ path: "addonCollectionSet", params: { authKey, addons } });
 }
 
