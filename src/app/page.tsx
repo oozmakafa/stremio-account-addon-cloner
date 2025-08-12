@@ -48,6 +48,7 @@ export default function Home() {
 
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
 
   const handleSubmit = async () => {
     // Check primary account
@@ -116,8 +117,19 @@ export default function Home() {
           <p className="mt-2 text-gray-200 text-sm md:text-base">
             Clone your Stremio addons from your primary account to multiple accounts easily
           </p>
+
+          {/* Blended Soft Warning */}
+          <div className="mt-4 inline-block bg-white/10 border border-white/20 rounded-lg px-4 py-2 text-white text-sm md:text-base shadow-sm text-left">
+            ⚠️ <b>Please note:</b> This tool interacts directly with your Stremio account.
+            <br />
+            🔑 Addon credentials, such as your Debrid account details, will also be cloned to the target account.
+            <br />
+            <br />
+            Use responsibly to avoid potential account issues.
+          </div>
         </div>
       </header>
+
 
       {/* Alert */}
       {alert && (
@@ -158,17 +170,55 @@ export default function Home() {
               />
               <span>Email/Password</span>
             </label>
+            {/* AuthKey option */}
             <label className="flex items-center space-x-2">
               <input
                 type="radio"
                 name="primaryMode"
                 value="authkey"
                 checked={primaryAccount.mode === "authkey"}
-                onChange={() =>
-                  handlePrimaryChange("mode", "authkey")
-                }
+                onChange={() => handlePrimaryChange("mode", "authkey")}
               />
-              <span>AuthKey</span>
+
+              <span className="flex items-center">
+                AuthKey
+                <div className="relative ml-2">
+                  <button
+                    type="button"
+                    className="text-blue-500 font-bold rounded-full w-6 h-6 text-xs flex items-center justify-center border border-blue-500 hover:bg-blue-100"
+                    onClick={() => setShowTooltip(!showTooltip)}
+                  >
+                    ?
+                  </button>
+
+                  {showTooltip && (
+                    <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-gray-800 text-white text-sm rounded p-3 w-72 shadow-lg z-10">
+                      <strong>How to get your AuthKey:</strong>
+                      <ol className="list-decimal list-inside mt-1 space-y-1">
+                        <li>
+                          Log in to{" "}
+                          <a
+                            href="https://web.stremio.com/"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="underline text-blue-300"
+                          >
+                            web.stremio.com
+                          </a>
+                        </li>
+                        <li>Open the browser console (F12 or Ctrl+Shift+I)</li>
+                        <li>
+                          Run:{" "}
+                          <code className="bg-gray-700 px-1 py-0.5 rounded break-all">
+                            JSON.parse(localStorage.getItem("profile")).auth.key
+                          </code>
+                        </li>
+                        <li>Copy the output and paste it here</li>
+                      </ol>
+                    </div>
+                  )}
+                </div>
+              </span>
             </label>
           </div>
 
