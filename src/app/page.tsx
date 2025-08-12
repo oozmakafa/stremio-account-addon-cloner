@@ -42,6 +42,29 @@ export default function Home() {
     setCloneAccounts(updated);
   };
 
+  const handlePrimaryChange = (field: keyof CloneAccount, value: string) => {
+    setPrimaryAccount({ ...primaryAccount, [field]: value });
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const data = JSON.stringify({ primary: primaryAccount, clones: cloneAccounts })
+
+      const res = await fetch("/api/clone", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: data,
+      });
+
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || "Unknown error");
+
+      alert("✅ Addons cloned successfully!");
+    } catch (err: any) {
+      alert(`❌ Failed: ${err.message}`);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gray-900 flex flex-col items-center">
       {/* Jumbotron */}
@@ -58,7 +81,7 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="w-full max-w-lg bg-gray-800 rounded-2xl shadow p-6 space-y-6 mt-6">
-        
+
         {/* Primary Account */}
         <section>
           <h2 className="text-xl font-bold mb-4">Primary Account</h2>
@@ -72,7 +95,7 @@ export default function Home() {
                 value="credentials"
                 checked={primaryAccount.mode === "credentials"}
                 onChange={() =>
-                  setPrimaryAccount({ ...primaryAccount, mode: "credentials" })
+                  handlePrimaryChange("mode", "credentials")
                 }
               />
               <span>Email/Password</span>
@@ -84,7 +107,7 @@ export default function Home() {
                 value="authkey"
                 checked={primaryAccount.mode === "authkey"}
                 onChange={() =>
-                  setPrimaryAccount({ ...primaryAccount, mode: "authkey" })
+                  handlePrimaryChange("mode", "authkey")
                 }
               />
               <span>AuthKey</span>
@@ -97,11 +120,15 @@ export default function Home() {
                 type="email"
                 placeholder="Email"
                 className="w-full border border-gray-600 bg-gray-700 p-2 rounded-lg text-white placeholder-gray-400"
+                value={primaryAccount.email}
+                onChange={(e) => handlePrimaryChange("email", e.target.value)}
               />
               <input
                 type="password"
                 placeholder="Password"
                 className="w-full border border-gray-600 bg-gray-700 p-2 rounded-lg text-white placeholder-gray-400"
+                value={primaryAccount.password}
+                onChange={(e) => handlePrimaryChange("password", e.target.value)}
               />
             </div>
           ) : (
@@ -109,6 +136,8 @@ export default function Home() {
               type="text"
               placeholder="AuthKey"
               className="w-full border border-gray-600 bg-gray-700 p-2 rounded-lg text-white placeholder-gray-400"
+              value={primaryAccount.authkey}
+              onChange={(e) => handlePrimaryChange("authkey", e.target.value)}
             />
           )}
         </section>
@@ -207,7 +236,11 @@ export default function Home() {
 
         {/* Submit */}
         <div>
-          <button className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600">
+          <button
+            type="button"
+            onClick={handleSubmit}
+            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600"
+          >
             Clone Addon
           </button>
         </div>
