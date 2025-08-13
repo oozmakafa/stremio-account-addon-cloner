@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Footer from "./components/footer";
 import Header from "./components/header";
 
@@ -21,6 +21,57 @@ export default function Home() {
   const [cloneAccounts, setCloneAccounts] = useState<CloneAccount[]>([
     { mode: "credentials", email: "", password: "", authkey: "" },
   ]);
+
+  const [rememberDetails, setRememberDetails] = useState(false);
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem("stremio_clone_accounts");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        setPrimaryAccount({
+          ...parsed.primary,
+          password:
+            parsed.primary.mode === "credentials"
+              ? atob(parsed.primary.password || "")
+              : "",
+        });
+        setCloneAccounts(
+          parsed.clones.map((acc: CloneAccount) => ({
+            ...acc,
+            password: acc.mode === "credentials" ? atob(acc.password || "") : "",
+          }))
+        );
+        setRememberDetails(true);
+      } catch (err) {
+        console.error("Failed to load saved accounts:", err);
+      }
+    }
+  }, []);
+
+  // Save to localStorage if rememberDetails is true
+  const saveToLocalStorage = () => {
+    if (!rememberDetails) {
+      localStorage.removeItem("stremio_clone_accounts");
+      return;
+    }
+    const encodedPrimary = {
+      ...primaryAccount,
+      password:
+        primaryAccount.mode === "credentials"
+          ? btoa(primaryAccount.password || "")
+          : "",
+    };
+    const encodedClones = cloneAccounts.map((acc) => ({
+      ...acc,
+      password: acc.mode === "credentials" ? btoa(acc.password || "") : "",
+    }));
+    localStorage.setItem(
+      "stremio_clone_accounts",
+      JSON.stringify({ primary: encodedPrimary, clones: encodedClones })
+    );
+  };
 
   const addCloneAccount = () => {
     setCloneAccounts([
@@ -86,6 +137,7 @@ export default function Home() {
     setAlert(null);
 
     try {
+      saveToLocalStorage(); // Save before sending request
       const data = JSON.stringify({ primary: primaryAccount, clones: cloneAccounts })
 
       const res = await fetch("/api/clone", {
@@ -333,6 +385,14 @@ export default function Home() {
           >
             {loading ? "Cloning..." : "Clone Addon"}
           </button>
+          <label className="flex items-center space-x-2 text-gray-300">
+            <input
+              type="checkbox"
+              checked={rememberDetails}
+              onChange={(e) => setRememberDetails(e.target.checked)}
+            />
+            <span>Remember my details</span>
+          </label>
         </div>
       </div>
 

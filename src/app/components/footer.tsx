@@ -15,15 +15,9 @@ const Footer = () => {
                         ko-fi.com/oozmakafa
                     </Link>
                 </p>
-
-                <p>
-                    Built with ☕, 💻, a dash of 🍯, and the help of ChatGPT —{" "}
-                    <span className="font-mono">v{packageJson.version}</span>
-                </p>
-
                 <p>
                     Developed by{" "}
-                    <span className="text-white font-semibold">Oozmakafa</span>
+                    <span className="text-white font-semibold">Oozmakafa</span> with the help of ChatGPT
                 </p>
 
                 <p>
@@ -35,6 +29,8 @@ const Footer = () => {
                     >
                         📂 View Source on GitHub
                     </a>
+                    <br />
+                    <span className="font-mono">v{packageJson.version}</span>
                 </p>
             </div>
         </footer>
