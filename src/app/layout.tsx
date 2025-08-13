@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: 'Stremio Account Addon Cloner',
   description: 'Clone your Stremio addons from your primary account to multiple accounts easily.',
+  icons: {
+    icon: '/duplicate.png',
+  },
 };
 
 export default function RootLayout({
