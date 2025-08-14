@@ -6,6 +6,8 @@ import Alert from "./components/Alert";
 import PrimaryAccountForm from "./components/PrimaryAccountForm";
 import CloneAccountList from "./components/CloneAccountList";
 import { Account } from "./types/accounts";
+import AddonsDragAndDrop from "./components/Addons";
+import { Addon } from "./types/addon";
 
 export default function Home() {
 
@@ -22,9 +24,10 @@ export default function Home() {
 
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
   const [loading, setLoading] = useState(false);
+  const [loadingAddon, setLoadingAddon] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
   const [rememberDetails, setRememberDetails] = useState(false);
-  const [addons, setAddons] = useState<{ id: string; name: string; checked: boolean, is_protected: boolean, addon: object }[]>([]);
+  const [addons, setAddons] = useState<Addon[]>([]);
   const [showAddons, setShowAddons] = useState(false);
 
   // Load from localStorage on mount
@@ -106,6 +109,8 @@ export default function Home() {
   }
 
   const handleSelectAddonsClick = async () => {
+    setLoadingAddon(true);
+    setAlert(null);
     try {
 
       if (isMissingPrimaryDetails()) {
@@ -133,13 +138,9 @@ export default function Home() {
     } catch (err) {
       if (err instanceof Error)
         setAlert({ type: "error", message: `Failed to load addons: ${err.message || err}` });
+    } finally {
+      setLoadingAddon(false);
     }
-  };
-
-  const toggleAddonCheck = (id: string) => {
-    setAddons((prev) =>
-      prev.map((addon) => (addon.id === id ? { ...addon, checked: !addon.checked } : addon))
-    );
   };
 
   const handleSubmit = async () => {
@@ -214,30 +215,19 @@ export default function Home() {
             onClick={handleSelectAddonsClick}
             className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
           >
-            Select Addons to Clone (Optional)
+            {loadingAddon ? "Loading Addons..." : "Select Addons to Clone (Optional)"}
           </button>
 
-          {/* Dropdown with checkboxes */}
           {showAddons && (
-            <div className="mt-3 bg-gray-700 p-3 rounded-lg shadow space-y-2">
-              {addons.map(({ id, name, is_protected, checked }) => (
-                <label key={id} className="flex items-center space-x-2 text-gray-300">
-                  <input
-                    id={id}
-                    type="checkbox"
-                    checked={checked}
-                    disabled={is_protected}
-                    onChange={() => toggleAddonCheck(id)}
-                    className="h-5 w-5 border-2 border-gray-400 rounded-sm bg-gray-700 checked:bg-blue-500 checked:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer transition-all"
-                  />
-                  <span>{name}
-                    {is_protected && " (Protected)"}
-                  </span>
-                </label>
-              ))}
-            </div>
+            <AddonsDragAndDrop
+              addons={addons}
+              onChange={(updatedAddons) => setAddons(updatedAddons)}
+            />
           )}
+
+
         </div>
+        {/* <DragAndDropList /> */}
 
         <CloneAccountList
           accounts={cloneAccounts}
