@@ -17,28 +17,43 @@ export async function POST(req: Request) {
 
 
   try {
-    let primaryAddons: object[];
+    let primaryAddons: object[] = [];
 
     // use user selected addon
-    if (addons) {
+    if (addons.length > 0) {
       primaryAddons = addons;
     } else {
       // get all addons from primary
-      const auth = await getAuth(primary);
-      primaryAddons = await getAddons(auth);
+      try {
+        const auth = await getAuth(primary);
+        primaryAddons = await getAddons(auth);
+      } catch (err) {
+        if (err instanceof Error) {
+          const message = `Primary Account: ${err.message}`;
+          throw Error(message);
+        }
+      }
     }
 
 
     const cloneAuthKeys: string[] = [];
 
-    for (const acc of clones) {
-      const cloneAuth = await getAuth(acc);
-      cloneAuthKeys.push(cloneAuth);
-    }
+    for (const [index, acc] of clones.entries()) {
 
-    // Push to each clone account
-    for (const cloneAuth of cloneAuthKeys) {
-      await pushAddonCollection(cloneAuth, primaryAddons);
+      try {
+        const cloneAuth = await getAuth(acc);
+        cloneAuthKeys.push(cloneAuth);
+      } catch (err) {
+        if (err instanceof Error) {
+          const message = `Clone Account # ${index + 1}: ${err.message}`;
+          throw Error(message);
+        }
+      }
+
+      // Push to each clone account
+      for (const cloneAuth of cloneAuthKeys) {
+        await pushAddonCollection(cloneAuth, primaryAddons);
+      }
     }
 
     return NextResponse.json({ message: "Addons cloned successfully" });
