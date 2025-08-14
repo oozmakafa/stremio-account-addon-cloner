@@ -1,6 +1,6 @@
 # 🎯 Stremio Account Addon Cloner
 
-A **Next.js 15** web app that lets you **clone all addons** from a primary Stremio account to multiple secondary accounts.  
+A **Next.js 15** web app that lets you **clone addons** from a primary Stremio account to multiple secondary accounts.  
 Styled with **Tailwind CSS**.
 
 ---

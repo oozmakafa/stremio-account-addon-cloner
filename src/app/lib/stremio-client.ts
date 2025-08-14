@@ -1,3 +1,5 @@
+import { Account } from "../types/accounts";
+
 const makeRequest = async (options: { path: string, params: object }) => {
     const res = await fetch(`https://api.strem.io/api/${options.path}`, {
         method: "POST",
@@ -26,4 +28,27 @@ const pushAddonCollection = async (authKey: string, addons: object[]) => {
     return makeRequest({ path: "addonCollectionSet", params: { authKey, addons } });
 }
 
-export { login, pullAddonCollection, pushAddonCollection };
+
+const getAuth = async (acc: Account) => {
+
+    if (acc.mode === "authkey") {
+        return acc.authkey;
+    }
+
+    const account = await login(
+        acc.email,
+        acc.password,
+    );
+
+    return account.result.authKey;
+
+}
+
+
+const getAddons = async (authKey: string) => {
+    const collection = await pullAddonCollection(authKey);
+
+    return collection.result.addons;;
+}
+
+export { pushAddonCollection, getAuth, getAddons };

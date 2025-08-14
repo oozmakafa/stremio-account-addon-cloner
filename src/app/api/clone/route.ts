@@ -1,68 +1,59 @@
 
 import { NextResponse } from "next/server";
-import { pullAddonCollection, login, pushAddonCollection } from "@/app/lib/stremio-client";
+import { Account } from "@/app/types/accounts";
+import { pushAddonCollection, getAuth, getAddons } from "@/app/lib/stremio-client";
 
 
-
-type CloneAccount = {
-  mode: "credentials" | "authkey";
-  email: string;
-  password: string;
-  authkey: string;
-};
 
 type ClonePayload = {
-  primary: CloneAccount;
-  clones: CloneAccount[];
+  primary: Account;
+  clones: Account[];
+  addons: object[];
 };
 
-const getAuth = async (acc: CloneAccount) => {
-  let authKey: string = '';
-
-  if (acc.mode === "authkey") {
-    return acc.authkey;
-  } else {
-    const account = await login(
-      acc.email,
-      acc.password,
-    );
-    authKey = account.result.authKey;
-  }
-
-  return authKey;
-
-}
 
 export async function POST(req: Request) {
-  const { primary, clones }: ClonePayload = await req.json();
+  const { primary, clones, addons }: ClonePayload = await req.json();
 
-
-  const getAddons = async (authKey: string) => {
-    let addons = [];
-
-    const collection = await pullAddonCollection(authKey);
-
-    addons = collection.result.addons;
-
-    return addons;
-  }
 
   try {
+    let primaryAddons: object[] = [];
 
-    const primaryAuth = await getAuth(primary);
+    // use user selected addon
+    if (addons.length > 0) {
+      primaryAddons = addons;
+    } else {
+      // get all addons from primary
+      try {
+        const auth = await getAuth(primary);
+        primaryAddons = await getAddons(auth);
+      } catch (err) {
+        if (err instanceof Error) {
+          const message = `Primary Account: ${err.message}`;
+          throw Error(message);
+        }
+      }
+    }
 
-    const primaryAddons = await getAddons(primaryAuth);
 
     const cloneAuthKeys: string[] = [];
 
-    for (const acc of clones) {
-      const cloneAuth = await getAuth(acc);
-      cloneAuthKeys.push(cloneAuth);
-    }
+    for (const [index, acc] of clones.entries()) {
 
-    // Push to each clone account
-    for (const cloneAuth of cloneAuthKeys) {
-      await pushAddonCollection(cloneAuth, primaryAddons);
+      try {
+        const cloneAuth = await getAuth(acc);
+        cloneAuthKeys.push(cloneAuth);
+      } catch (err) {
+        if (err instanceof Error) {
+          const message = `Clone Account # ${index + 1}: ${err.message}`;
+          throw Error(message);
+        }
+      }
+
+      // Push to each clone account
+      for (const cloneAuth of cloneAuthKeys) {
+        await pushAddonCollection(cloneAuth, primaryAddons);
+      }
     }
 
     return NextResponse.json({ message: "Addons cloned successfully" });
