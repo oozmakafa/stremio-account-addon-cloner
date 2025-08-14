@@ -120,7 +120,7 @@ export default function Home() {
       const result = await res.json();
       if (!res.ok) throw new Error(result.details || "Unknown error");
 
-      const formatted = result.addons.map((addon: any) => ({
+      const formatted = result.addons.map((addon: { transportUrl: string; manifest: { name: string; }; flags: { protected: boolean; }; }) => ({
         addon: addon,
         id: addon.transportUrl,
         name: addon.manifest.name,
