@@ -6,13 +6,12 @@ const Footer = () => {
         <footer className="mt-12 py-6 text-center text-gray-400 text-sm border-t border-gray-700">
             <div className="space-y-2">
                 <p className="font-medium">
-                    ☕ Buy me a coffee?{" "}
                     <Link
                         href="https://ko-fi.com/oozmakafa"
                         target="_blank"
                         className="text-blue-400 hover:underline"
                     >
-                        ko-fi.com/oozmakafa
+                        ☕ Support my work{" "}
                     </Link>
                 </p>
                 <p>
