@@ -108,15 +108,17 @@ function SortableAddonItem({
 
 export default function AddonsDragAndDrop({ addons, onChange }: Props) {
     const sensors = useSensors(
+        // Desktop / mouse
         useSensor(PointerSensor, {
             activationConstraint: {
-                distance: 5, // drag starts after moving 5px (prevents accidental drags on click)
+                distance: 5, // drag only starts after moving 5px
             },
         }),
+        // Mobile / touch
         useSensor(TouchSensor, {
             activationConstraint: {
-                delay: 200, // long-press delay (ms) before drag starts
-                tolerance: 5,
+                delay: 250, // long press 250ms before drag starts
+                tolerance: 10,
             },
         })
     );
