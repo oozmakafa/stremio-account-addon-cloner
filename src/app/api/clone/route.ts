@@ -2,14 +2,25 @@
 import { NextResponse } from "next/server";
 import { Account } from "@/app/types/accounts";
 import { pushAddonCollection, getAuth, getAddons } from "@/app/lib/stremio-client";
+import { setTorrentDebridProvider } from "@/app/utils/torrentioDebridProvider";
+import { fetchAddonManifest } from "@/app/services/addonManifest";
 
+interface ManifestData {
+  id: string;
+}
 
+interface AddonData {
+  flags: object;
+  manifest: ManifestData;
+  transportUrl: string;
+}
 
 type ClonePayload = {
   primary: Account;
   clones: Account[];
-  addons: object[];
+  addons: AddonData[];
 };
+
 
 
 export async function POST(req: Request) {
@@ -17,7 +28,7 @@ export async function POST(req: Request) {
 
 
   try {
-    let primaryAddons: object[] = [];
+    let primaryAddons: AddonData[] = [];
 
     // use user selected addon
     if (addons.length > 0) {
@@ -35,27 +46,62 @@ export async function POST(req: Request) {
       }
     }
 
-
-    const cloneAuthKeys: string[] = [];
+    const clonedAddons: Record<string, AddonData[]> = {};
 
     for (const [index, acc] of clones.entries()) {
-
       try {
-        const cloneAuth = await getAuth(acc);
-        cloneAuthKeys.push(cloneAuth);
+        const cloneAuth = await getAuth(acc); // authKey string
+        clonedAddons[cloneAuth] = []; // initialize array for this clone
+
+        for (const addon of primaryAddons) {
+          let current_addon: AddonData = { ...addon };
+
+          if (!clonedAddons[cloneAuth]) {
+            clonedAddons[cloneAuth] = [];
+          }
+
+          // Check if addon already exists
+          const exists = clonedAddons[cloneAuth].some(
+            (addonData) => addonData.manifest.id === addon.manifest.id
+          );
+
+          if (
+            !exists &&
+            acc.is_debrid_override &&
+            addon?.manifest?.id == "com.stremio.torrentio.addon"
+
+          ) {
+            const new_transport = setTorrentDebridProvider(
+              addon?.transportUrl,
+              acc.debrid_type,
+              acc.debrid_key
+            );
+            const new_manifest = await fetchAddonManifest(new_transport);
+
+            current_addon = {
+              ...addon,
+              transportUrl: new_transport,
+              manifest: new_manifest,
+            };
+          }
+
+          // push into the correct cloneAuth bucket
+          clonedAddons[cloneAuth].push(current_addon);
+        }
+
+        for (const [authKey, addons] of Object.entries(clonedAddons)) {
+          // await pushAddonCollection(authKey, addons);
+          console.log("test");
+        }
+
+        // push all addons for this clone
+        // await pushAddonCollection(cloneAuth, clonedAddons[cloneAuth]);
       } catch (err) {
         if (err instanceof Error) {
-          const message = `Clone Account # ${index + 1}: ${err.message}`;
-          throw Error(message);
+          throw Error(`Clone Account # ${index + 1}: ${err.message}`);
         }
       }
-
-      // Push to each clone account
-      for (const cloneAuth of cloneAuthKeys) {
-        await pushAddonCollection(cloneAuth, primaryAddons);
-      }
     }
-
     return NextResponse.json({ message: "Addons cloned successfully" });
   } catch (err: unknown) {
     if (err instanceof Error) {

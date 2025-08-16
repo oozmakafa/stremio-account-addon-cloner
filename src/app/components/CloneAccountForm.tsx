@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Account } from "../types/accounts";
 import { Eye, EyeOff } from "lucide-react";
 
@@ -12,7 +11,7 @@ const DEBRID_OPTIONS = [
 type CloneAccountFormProps = {
     index: number;
     account: Account;
-    onChange: (index: number, field: keyof Account, value: string) => void;
+    onChange: (index: number, field: keyof Account, value: string | boolean) => void;
     onRemove: (index: number) => void;
 };
 
@@ -22,8 +21,6 @@ export default function CloneAccountForm({
     onChange,
     onRemove,
 }: CloneAccountFormProps) {
-    const [showDebrid, setShowDebrid] = useState(false);
-
     return (
         <div className="mb-4 border border-gray-600 p-4 rounded-lg bg-gray-700">
             <div className="flex items-center justify-between mb-2">
@@ -32,11 +29,11 @@ export default function CloneAccountForm({
                     {/* Override Debrid button */}
                     <button
                         type="button"
-                        onClick={() => setShowDebrid((prev) => !prev)}
+                        onClick={() => onChange(index, "is_debrid_override", !account.is_debrid_override)}
                         className="flex items-center justify-between bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600 w-44"
                     >
                         <span className="leading-none">Override Debrid</span>
-                        {showDebrid ? (
+                        {account.is_debrid_override ? (
                             <Eye className="w-4 h-4" />
                         ) : (
                             <EyeOff className="w-4 h-4" />
@@ -106,7 +103,7 @@ export default function CloneAccountForm({
             )}
 
             {/* Debrid Override (only if button clicked) */}
-            {showDebrid && (
+            {account.is_debrid_override && (
                 <div className="flex items-center space-x-3 mt-4">
                     <select
                         value={account.debrid_type || ""}
@@ -131,7 +128,8 @@ export default function CloneAccountForm({
                             />
                             <a
                                 href={
-                                    DEBRID_OPTIONS.find((o) => o.value === account.debrid_type)?.url || "#"
+                                    DEBRID_OPTIONS.find((o) => o.value === account.debrid_type)?.url ||
+                                    "#"
                                 }
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -143,7 +141,6 @@ export default function CloneAccountForm({
                     )}
                 </div>
             )}
-
         </div>
     );
 }

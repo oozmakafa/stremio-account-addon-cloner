@@ -3,6 +3,7 @@ export type Account = {
     email: string;
     password: string;
     authkey: string;
-    debrid_type?: string;
-    debrid_key?: string;
+    is_debrid_override: boolean;
+    debrid_type: string;
+    debrid_key: string;
 };
