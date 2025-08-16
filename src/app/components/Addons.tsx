@@ -45,7 +45,7 @@ function SortableAddonItem({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-center justify-between text-gray-300 bg-gray-800 px-3 py-2 rounded-lg shadow"
+            className="flex items-center justify-between text-gray-300 bg-gray-800 px-3 py-2 rounded-lg shadow select-none touch-none"
         >
             <label className="flex items-center space-x-2 select-none">
                 <input
@@ -94,9 +94,10 @@ function SortableAddonItem({
 
                 {/* Drag handle */}
                 <button
+                    type="button"
                     {...attributes}
                     {...listeners}
-                    className="text-gray-400 hover:text-white cursor-grab active:cursor-grabbing p-1"
+                    className="text-gray-400 hover:text-white cursor-grab active:cursor-grabbing p-1 touch-none"
                     aria-label="Drag handle"
                 >
                     <GripVertical size={18} />
