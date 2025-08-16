@@ -241,11 +241,16 @@ export default function Home() {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={loading}
-            className="w-full bg-green-500 text-white py-2 rounded-lg hover:bg-green-600"
+            disabled={loading || !cloneAccounts.length}
+            className="w-full 
+             bg-green-500 hover:bg-green-600 
+             disabled:bg-gray-500 disabled:hover:bg-gray-500 
+             text-white py-2 rounded-lg
+             disabled:cursor-not-allowed"
           >
             {loading ? "Cloning..." : "Clone Addon"}
           </button>
+
           <label className="flex items-center space-x-2 text-gray-300">
             <input
               type="checkbox"
