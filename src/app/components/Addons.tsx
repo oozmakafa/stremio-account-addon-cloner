@@ -6,6 +6,7 @@ import {
     useSensor,
     useSensors,
     DragEndEvent,
+    TouchSensor,
 } from "@dnd-kit/core";
 import {
     arrayMove,
@@ -14,7 +15,7 @@ import {
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { AlertTriangle, GripVertical } from "lucide-react";
+import { AlertTriangle, Copy, ExternalLink, GripVertical } from "lucide-react";
 import { useState } from "react";
 import { Addon } from "../types/addon";
 
@@ -28,6 +29,7 @@ function SortableAddonItem({
     id,
     name,
     is_protected,
+    is_configurable,
     checked,
     toggleAddonCheck,
 }: Addon & { toggleAddonCheck: (id: string) => void }) {
@@ -43,7 +45,7 @@ function SortableAddonItem({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-center justify-between text-gray-300 bg-gray-800 px-3 py-2 rounded-lg shadow"
+            className="flex items-center justify-between text-gray-300 bg-gray-800 px-3 py-2 rounded-lg shadow select-none touch-none"
         >
             <label className="flex items-center space-x-2 select-none">
                 <input
@@ -60,20 +62,67 @@ function SortableAddonItem({
             </label>
 
             {/* Drag handle */}
-            <button
-                {...attributes}
-                {...listeners}
-                className="text-gray-400 hover:text-white cursor-grab active:cursor-grabbing p-1"
-                aria-label="Drag handle"
-            >
-                <GripVertical size={18} />
-            </button>
+            <div className="flex items-center space-x-2">
+                {/* Open link button */}
+                {!is_configurable ? (
+                    <span
+                        className="text-gray-500 opacity-50 cursor-not-allowed p-1"
+                        title="Protected addon – link disabled"
+                    >
+                        <ExternalLink size={18} />
+                    </span>
+                ) : (
+                    <a
+                        href={id.replace("/manifest.json", "/configure")} // change to actual addon link
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-gray-400 hover:text-white p-1"
+                        aria-label="Open addon link"
+                    >
+                        <ExternalLink size={18} />
+                    </a>
+                )}
+
+                {/* Copy button */}
+                <button
+                    onClick={() => navigator.clipboard.writeText(id)}
+                    className="text-gray-400 hover:text-white p-1"
+                    aria-label="Copy addon ID"
+                >
+                    <Copy size={18} />
+                </button>
+
+                {/* Drag handle */}
+                <button
+                    type="button"
+                    {...attributes}
+                    {...listeners}
+                    className="text-gray-400 hover:text-white cursor-grab active:cursor-grabbing p-1 touch-none"
+                    aria-label="Drag handle"
+                >
+                    <GripVertical size={18} />
+                </button>
+            </div>
         </div>
     );
 }
 
 export default function AddonsDragAndDrop({ addons, onChange }: Props) {
-    const sensors = useSensors(useSensor(PointerSensor));
+    const sensors = useSensors(
+        // Desktop / mouse
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 5, // drag only starts after moving 5px
+            },
+        }),
+        // Mobile / touch
+        useSensor(TouchSensor, {
+            activationConstraint: {
+                delay: 250, // long press 250ms before drag starts
+                tolerance: 10,
+            },
+        })
+    );
     const [showWarning, setShowWarning] = useState(false);
 
     const toggleAddonCheck = (id: string) => {
