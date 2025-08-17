@@ -8,10 +8,18 @@ export function useAccounts() {
         email: "",
         password: "",
         authkey: "",
+        is_debrid_override: false,
+        debrid_type: "",
+        debrid_key: "",
     });
 
     const [cloneAccounts, setCloneAccounts] = useState<Account[]>([
-        { mode: "credentials", email: "", password: "", authkey: "" },
+        {
+            mode: "credentials", email: "", password: "", authkey: "",
+            is_debrid_override: false,
+            debrid_type: "",
+            debrid_key: ""
+        },
     ]);
 
     const [rememberDetails, setRememberDetails] = useState(false);
@@ -67,13 +75,18 @@ export function useAccounts() {
     const addAccount = () =>
         setCloneAccounts([
             ...cloneAccounts,
-            { mode: "credentials", email: "", password: "", authkey: "" },
+            {
+                mode: "credentials", email: "", password: "", authkey: "",
+                is_debrid_override: false,
+                debrid_type: "",
+                debrid_key: ""
+            },
         ]);
 
     const removeAccount = (index: number) =>
         setCloneAccounts(cloneAccounts.filter((_, i) => i !== index));
 
-    const handleCloneChange = (index: number, field: keyof Account, value: string) => {
+    const handleCloneChange = (index: number, field: keyof Account, value: string | boolean) => {
         const updated = [...cloneAccounts];
         updated[index] = { ...updated[index], [field]: value };
         setCloneAccounts(updated);

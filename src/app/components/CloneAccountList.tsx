@@ -4,7 +4,7 @@ import CloneAccountForm from "./CloneAccountForm";
 type CloneAccountListProps = {
     accounts: Account[];
     onAdd: () => void;
-    onChange: (index: number, field: keyof Account, value: string) => void;
+    onChange: (index: number, field: keyof Account, value: string | boolean) => void;
     onRemove: (index: number) => void;
 };
 

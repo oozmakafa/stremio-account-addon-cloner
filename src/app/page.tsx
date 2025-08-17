@@ -10,7 +10,7 @@ import CloneControls from "./components/CloneControls";
 import { useAccounts } from "./hooks/useAccounts";
 import { validatePrimaryAccount, validateCloneAccounts } from "./utils/validation";
 import { fetchAddons, cloneAddons } from "./services/api";
-import { Addon } from "./types/addon";
+import { Addon, AddonData } from "./types/addon";
 
 export default function Home() {
   const {
@@ -43,7 +43,7 @@ export default function Home() {
       }
 
       const addonsResult = await fetchAddons(primaryAccount);
-      const formatted = addonsResult.map((addon: { transportUrl: string; manifest: { name: string; behaviorHints: { configurable: boolean; }; }; flags: { protected: boolean; }; }) => ({
+      const formatted = addonsResult.map((addon: AddonData) => ({
         addon,
         id: addon.transportUrl,
         name: addon.manifest.name,
