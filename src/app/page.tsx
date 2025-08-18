@@ -8,7 +8,7 @@ import CloneAccountList from "./components/CloneAccountList";
 import AddonSelector from "./components/AddonSelector";
 import CloneControls from "./components/CloneControls";
 import { useAccounts } from "./hooks/useAccounts";
-import { validatePrimaryAccount, validateCloneAccounts } from "./utils/validation";
+import { validateAccount, validateCloneAccounts } from "./utils/validation";
 import { fetchAddons, cloneAddons } from "./services/api";
 import { Addon, AddonData } from "./types/addon";
 
@@ -36,7 +36,7 @@ export default function Home() {
     setLoadingAddon(true);
     setAlert(null);
     try {
-      const { valid, error } = validatePrimaryAccount(primaryAccount);
+      const { valid, error } = validateAccount(primaryAccount, "Primary");
       if (!valid) {
         setAlert({ type: "error", message: error! });
         return;
@@ -63,7 +63,7 @@ export default function Home() {
   };
 
   const handleSubmit = async () => {
-    const { valid, error } = validatePrimaryAccount(primaryAccount);
+    const { valid, error } = validateAccount(primaryAccount, "Primary");
     if (!valid) {
       setAlert({ type: "error", message: error! });
       return;

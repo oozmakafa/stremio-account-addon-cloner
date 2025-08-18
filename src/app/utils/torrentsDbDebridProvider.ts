@@ -1,8 +1,13 @@
+import { DEBRID_OPTIONS } from "./debridOptions";
+
 interface ManifestUrlPayload {
     torbox?: string;
     realdebrid?: string;
     offcloud?: string;
-    [key: string]: Record<string, string> | string | undefined; // allow other fields
+    alldebrid?: string;
+    easydebrid?: string;
+    premiunize?: string;
+    [key: string]: Record<string, string> | string | undefined;
 }
 
 export function setTorrentsDbDebridProvider(
@@ -21,6 +26,12 @@ export function setTorrentsDbDebridProvider(
             try {
                 const decoded = Buffer.from(encodedPayload, "base64").toString("utf-8");
                 payload = JSON.parse(decoded);
+                // Remove all existing debrid keys
+                Object.keys(payload).forEach((key) => {
+                    if (DEBRID_OPTIONS.some(debrid => key == debrid.value)) {
+                        delete payload[key];
+                    }
+                });
             } catch {
                 throw Error("Unable to decode torrentsDb configuration");
             }

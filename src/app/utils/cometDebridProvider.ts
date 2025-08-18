@@ -1,6 +1,6 @@
 interface ManifestUrlPayload {
     debridService?: string;
-    debridApiKey?: string;// allow other fields
+    debridApiKey?: string;
 }
 
 export function setCometDebridProvider(

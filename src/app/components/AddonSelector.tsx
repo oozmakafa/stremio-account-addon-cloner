@@ -2,6 +2,7 @@
 import React from "react"; // adjust path if needed
 import AddonsDragAndDrop from "./Addons";
 import { Addon } from "../types/addon";
+import { Puzzle } from "lucide-react";
 
 
 type AddonSelectorProps = {
@@ -24,9 +25,12 @@ export default function AddonSelector({
             <button
                 type="button"
                 onClick={handleSelectAddonsClick}
-                className="w-full bg-blue-500 text-white py-2 rounded-lg hover:bg-blue-600"
+                className="mt-4 flex items-center justify-center w-full gap-2 rounded-lg border border-dashed border-gray-600 bg-gray-800/50 hover:bg-gray-700/70 text-gray-300 hover:text-white py-3 transition-colors"
             >
-                {loadingAddon ? "Loading Addons..." : "Select Addons to Clone (Optional)"}
+                <Puzzle className="w-5 h-5" />
+                <span>
+                    {loadingAddon ? "Loading Addons..." : "Select Addons to Clone (Optional)"}
+                </span>
             </button>
 
             {showAddons && (

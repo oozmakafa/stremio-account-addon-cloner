@@ -40,17 +40,28 @@ export async function POST(req: Request) {
 
     for (const [index, acc] of clones.entries()) {
       try {
-        const cloneAuth = await getAuth(acc); // authKey string
+        const cloneAuth = await getAuth(acc);
+        if (!clonedAddons[cloneAuth]) clonedAddons[cloneAuth] = [];
+
+        if (acc.clone_mode === "append") {
+          const existingAddons = await getAddons(cloneAuth);
+          clonedAddons[cloneAuth] = [...existingAddons];
+        }
 
         // loop over primary addons and assign it to a clone account
         for (const addon of primaryAddons) {
           let current_addon: AddonData = { ...addon };
 
+          // Do not include cinemeta on append mode
+          if (acc.clone_mode === "append" && addon.manifest.id.includes("cinemeta")) {
+            continue;
+          }
+
+          // if debrid_override is set, try replacing the debrid keys for supported addons
           if (acc.is_debrid_override && addon.manifest.id) {
             current_addon = await handleAddon(addon, acc);
           }
 
-          if (!clonedAddons[cloneAuth]) clonedAddons[cloneAuth] = [];
           clonedAddons[cloneAuth].push(current_addon);
         }
 

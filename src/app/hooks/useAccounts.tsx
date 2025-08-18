@@ -11,6 +11,7 @@ export function useAccounts() {
         is_debrid_override: false,
         debrid_type: "",
         debrid_key: "",
+        clone_mode: "sync"
     });
 
     const [cloneAccounts, setCloneAccounts] = useState<Account[]>([
@@ -18,7 +19,8 @@ export function useAccounts() {
             mode: "credentials", email: "", password: "", authkey: "",
             is_debrid_override: false,
             debrid_type: "",
-            debrid_key: ""
+            debrid_key: "",
+            clone_mode: "sync"
         },
     ]);
 
@@ -26,23 +28,14 @@ export function useAccounts() {
 
     // Load accounts from localStorage
     useEffect(() => {
-        const saved = localStorage.getItem("stremio_clone_accounts");
+        const saved = localStorage.getItem("stremio_acounts_v1");
         if (saved) {
             try {
                 const parsed = JSON.parse(saved);
-                setPrimaryAccount({
-                    ...parsed.primary,
-                    password:
-                        parsed.primary.mode === "credentials"
-                            ? atob(parsed.primary.password || "")
-                            : "",
-                });
-                setCloneAccounts(
-                    parsed.clones.map((acc: Account) => ({
-                        ...acc,
-                        password: acc.mode === "credentials" ? atob(acc.password || "") : "",
-                    }))
-                );
+                const decodedPrimary = atob(parsed.primary);
+                const decodedClones = atob(parsed.clones);
+                setPrimaryAccount(JSON.parse(decodedPrimary));
+                setCloneAccounts(JSON.parse(decodedClones));
                 setRememberDetails(true);
             } catch (err) {
                 console.error("Failed to load saved accounts:", err);
@@ -52,22 +45,14 @@ export function useAccounts() {
 
     const saveToLocalStorage = () => {
         if (!rememberDetails) {
-            localStorage.removeItem("stremio_clone_accounts");
+            localStorage.removeItem("stremio_acounts_v1");
             return;
         }
-        const encodedPrimary = {
-            ...primaryAccount,
-            password:
-                primaryAccount.mode === "credentials"
-                    ? btoa(primaryAccount.password || "")
-                    : "",
-        };
-        const encodedClones = cloneAccounts.map((acc) => ({
-            ...acc,
-            password: acc.mode === "credentials" ? btoa(acc.password || "") : "",
-        }));
+        const encodedPrimary = btoa(JSON.stringify(primaryAccount));
+        const encodedClones = btoa(JSON.stringify(cloneAccounts));
+
         localStorage.setItem(
-            "stremio_clone_accounts",
+            "stremio_acounts_v1",
             JSON.stringify({ primary: encodedPrimary, clones: encodedClones })
         );
     };
@@ -79,7 +64,8 @@ export function useAccounts() {
                 mode: "credentials", email: "", password: "", authkey: "",
                 is_debrid_override: false,
                 debrid_type: "",
-                debrid_key: ""
+                debrid_key: "",
+                clone_mode: "sync"
             },
         ]);
 
