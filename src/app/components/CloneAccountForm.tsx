@@ -103,8 +103,8 @@ export default function CloneAccountForm({
                         title="View Installed Addons"
                         onClick={fetchCloneAddons}
                         disabled={loading}
-                        className={`px-3 py-2 rounded-lg flex items-center space-x-2 justify-center 
-        ${loading
+                        className={`px-3 py-2 rounded-lg flex items-center justify-center 
+                        ${loading
                                 ? "bg-gray-500 cursor-not-allowed"
                                 : "bg-gray-600 hover:bg-gray-500 text-white"
                             }`}
@@ -114,21 +114,23 @@ export default function CloneAccountForm({
                         ) : (
                             <Puzzle className="w-5 h-5" />
                         )}
-                        <span className="text-sm font-medium">Addons</span>
+                        <span className="hidden md:inline md:ml-2 text-sm font-medium">Addons</span>
                     </button>
 
                     {/* Override Debrid button */}
                     <button
                         type="button"
                         title="Toggle Debrid Override"
-                        onClick={() => onChange(index, "is_debrid_override", !account.is_debrid_override)}
-                        className={`flex items-center space-x-2 justify-center px-3 py-2 rounded-lg transition-colors ${account.is_debrid_override
+                        onClick={() =>
+                            onChange(index, "is_debrid_override", !account.is_debrid_override)
+                        }
+                        className={`flex items-center justify-center px-3 py-2 rounded-lg transition-colors ${account.is_debrid_override
                             ? "bg-green-500 hover:bg-green-600 text-gray-900"
                             : "bg-gray-600 hover:bg-gray-500 text-white"
                             }`}
                     >
                         <Wrench className="w-5 h-5" />
-                        <span className="text-sm font-medium">Override</span>
+                        <span className="hidden md:inline md:ml-2 text-sm font-medium">Override</span>
                     </button>
 
                     {/* Remove button */}
@@ -136,11 +138,12 @@ export default function CloneAccountForm({
                         type="button"
                         title="Remove Account"
                         onClick={() => onRemove(index)}
-                        className="flex items-center space-x-2 px-3 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-red-400"
+                        className="flex items-center px-3 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-red-400"
                     >
                         <X className="w-5 h-5" strokeWidth={4} />
-                        <span className="text-sm font-medium">Remove</span>
+                        <span className="hidden md:inline md:ml-2 text-sm font-medium">Remove</span>
                     </button>
+
 
                 </div>
             </div>
