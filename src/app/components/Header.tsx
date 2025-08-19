@@ -64,16 +64,16 @@ const Header = () => {
                                     Yes. Clone mode can either <b>sync</b> (match exactly) or <b>append</b> (add new addons without removing existing ones).
                                 </div>
                                 <div>
-                                    <span className="font-semibold">🔹 Is it safe?</span>{" "}
-                                    Yes. The tool only works with your accounts and does not save or share any of your data.
-                                </div>
-                                <div>
                                     <span className="font-semibold">🔹 Can you view the addons currently installed for a clone account?</span>{" "}
                                     Yes. You can view installed addons by clicking the <b>puzzle button</b> on the top-right corner of each clone account.
                                 </div>
                                 <div>
                                     <span className="font-semibold">🔹 Can I undo a clone?</span>{" "}
                                     There’s no automatic undo, but you can easily remove addons from your Stremio account if needed.
+                                </div>
+                                <div>
+                                    <span className="font-semibold">🔹 Is it safe?</span>{" "}
+                                    Yes. The tool only works with your accounts and does not save or share any of your data.
                                 </div>
                             </div>
                         </div>

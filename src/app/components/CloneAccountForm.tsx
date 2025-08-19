@@ -166,8 +166,7 @@ export default function CloneAccountForm({
                         </button>. This may affect how they work.
                     </p>
 
-                    {/* Debrid Row (select + input + button) */}
-                    <div className="flex items-center space-x-2">
+                    <div className="flex flex-wrap items-center gap-2">
                         {/* Debrid Select */}
                         <select
                             value={account.debrid_type || ""}
@@ -181,9 +180,9 @@ export default function CloneAccountForm({
                             ))}
                         </select>
 
-                        {/* Input + Key Button - only show if debrid_type is chosen */}
+                        {/* Input + Key Button */}
                         {account.debrid_type && (
-                            <div className="flex items-center flex-1 space-x-2">
+                            <div className="flex items-center flex-1 gap-2 min-w-[200px]">
                                 <input
                                     type="text"
                                     placeholder="Enter key"
@@ -207,6 +206,7 @@ export default function CloneAccountForm({
                             </div>
                         )}
                     </div>
+
 
                     {/* Supported Override Modal */}
                     {showSupportedModal && (
