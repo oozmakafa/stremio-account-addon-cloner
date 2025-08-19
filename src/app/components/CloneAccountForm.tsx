@@ -52,7 +52,7 @@ export default function CloneAccountForm({
     const handleDeleteAllAddon = async () => {
         try {
             // Compute remaining addons locally
-            const remaining = addons.filter((addon) => addon.manifest.id.includes("cinemeta"));
+            const remaining = addons.filter((addon) => addon.flags.protected);
 
             setLoading(true);
             const updated = await updateAddons(
@@ -379,7 +379,7 @@ export default function CloneAccountForm({
                                                     key={`${index}-${addon.transportUrl}`}
                                                     className="flex items-center justify-between p-2 border border-gray-600 rounded-md bg-gray-700"
                                                 >
-                                                    <span>{addon.manifest.name}</span>
+                                                    <span>{addon.manifest.name} {addon.flags.protected ? "(Protected)" : ""}</span>
                                                     <div className="flex space-x-2">
                                                         {/* External link */}
                                                         <a
@@ -443,7 +443,7 @@ export default function CloneAccountForm({
                                             className="px-3 py-2 bg-red-600 hover:bg-red-500 rounded text-sm font-medium flex items-center space-x-2"
                                         >
                                             <Trash2 className="w-4 h-4" />
-                                            <span>Delete All</span>
+                                            <span>Delete All (Protected not included)</span>
                                         </button>
                                     </div>
                                 )}
