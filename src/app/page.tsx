@@ -48,7 +48,7 @@ export default function Home() {
         id: addon.transportUrl,
         name: addon.manifest.name,
         is_protected: addon.flags.protected,
-        is_configurable: addon.manifest.behaviorHints.configurable,
+        is_configurable: addon.manifest?.behaviorHints?.configurable ?? false,
         checked: true,
       }));
 

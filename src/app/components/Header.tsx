@@ -69,7 +69,7 @@ const Header = () => {
                                 </div>
                                 <div>
                                     <span className="font-semibold">🔹 Can I undo a clone?</span>{" "}
-                                    There’s no automatic undo, but you can easily remove addons from your Stremio account if needed.
+                                    There’s no automatic undo, but you can easily remove addons by opening the installed addons of each clone account and clicking the trash icon or delete all.
                                 </div>
                                 <div>
                                     <span className="font-semibold">🔹 Is it safe?</span>{" "}
