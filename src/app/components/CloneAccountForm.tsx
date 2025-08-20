@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Account } from "../types/accounts";
 import { Copy, ExternalLink, HelpCircle, Key, Loader2, Puzzle, ToggleLeft, ToggleRight, Trash2, Wrench, X } from "lucide-react";
 import { fetchAddons, updateAddons } from "../services/api";
@@ -27,6 +27,19 @@ export default function CloneAccountForm({
     const [showSupportedModal, setShowSupportedModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+    // disable scroll when modal is open
+    useEffect(() => {
+        if (showModal || showSupportedModal) {
+            document.body.style.overflow = "hidden";
+        } else {
+            document.body.style.overflow = "";
+        }
+
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [showModal, showSupportedModal]);
 
     const handleDeleteAddon = async (index: number) => {
         try {
