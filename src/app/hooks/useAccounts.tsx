@@ -82,6 +82,10 @@ export function useAccounts() {
         setPrimaryAccount({ ...primaryAccount, [field]: value });
     };
 
+    const handleBulkChange = (checked: boolean) => {
+        setCloneAccounts(prev => prev.map(acc => ({ ...acc, selected: checked })));
+    };
+
     return {
         primaryAccount,
         setPrimaryAccount,
@@ -94,5 +98,6 @@ export function useAccounts() {
         handleCloneChange,
         handlePrimaryChange,
         saveToLocalStorage,
+        handleBulkChange
     };
 }

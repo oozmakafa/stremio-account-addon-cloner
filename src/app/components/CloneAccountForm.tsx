@@ -107,7 +107,22 @@ export default function CloneAccountForm({
         <div className="mb-4 border border-gray-600 p-4 rounded-lg bg-gray-700">
             {alert && <Alert type={alert.type} message={alert.message} onClose={() => setAlert(null)} />}
             <div className="flex items-center justify-between mb-2">
-                <span className="font-semibold text-white">Account #{index + 1}</span>
+                {/* Left side: checkbox + label */}
+                <label className="flex items-center space-x-2 cursor-pointer select-none"
+                    title="Include this account in bulk operations">
+                    <input
+                        type="checkbox"
+                        checked={account.selected ?? false}
+                        onChange={(e) => onChange(index, "selected", e.target.checked)}
+                        className="h-5 w-5 border-2 border-gray-400 rounded-sm bg-gray-700 
+                 checked:bg-blue-500 checked:border-blue-500 
+                 focus:outline-none focus:ring-2 focus:ring-blue-400 
+                 cursor-pointer transition-all"
+                    />
+                    <span className="font-semibold text-white">
+                        Account #{index + 1}
+                    </span>
+                </label>
                 <div className="flex space-x-2">
 
                     {/* Addons button */}

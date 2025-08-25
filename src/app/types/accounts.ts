@@ -7,4 +7,5 @@ export type Account = {
     debrid_type: string;
     debrid_key: string;
     clone_mode: "sync" | "append";
+    selected?: boolean;
 };

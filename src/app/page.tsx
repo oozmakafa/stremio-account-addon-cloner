@@ -23,6 +23,7 @@ export default function Home() {
     handleCloneChange,
     handlePrimaryChange,
     saveToLocalStorage,
+    handleBulkChange,
   } = useAccounts();
 
   const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
@@ -81,7 +82,7 @@ export default function Home() {
     try {
       saveToLocalStorage();
       const addonsToClone = addons.filter((addon) => addon.checked).map((addon) => addon.addon);
-      await cloneAddons(primaryAccount, cloneAccounts, addonsToClone);
+      await cloneAddons(primaryAccount, cloneAccounts.filter((account) => account.selected), addonsToClone);
       setAlert({ type: "success", message: "Addons cloned successfully!" });
     } catch (err) {
       if (err instanceof Error)
@@ -118,6 +119,7 @@ export default function Home() {
           onAdd={addAccount}
           onChange={handleCloneChange}
           onRemove={removeAccount}
+          onBulkChange={handleBulkChange}
         />
 
         <CloneControls
