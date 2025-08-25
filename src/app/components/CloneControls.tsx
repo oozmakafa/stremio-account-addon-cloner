@@ -1,10 +1,11 @@
 "use client";
 import React from "react";
 import { Copy } from "lucide-react";
+import { Account } from "../types/accounts";
 
 type CloneControlsProps = {
     loading: boolean;
-    cloneAccounts: object[]; // replace with your Account[] if available
+    cloneAccounts: Account[];
     rememberDetails: boolean;
     setRememberDetails: (value: boolean) => void;
     handleSubmit: () => void;
@@ -22,7 +23,7 @@ export default function CloneControls({
             <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={loading || !cloneAccounts.length}
+                disabled={loading || !cloneAccounts.filter(account => account.selected).length}
                 className="w-full flex items-center justify-center gap-2 
                            rounded-lg py-3 
                            bg-green-600 hover:bg-green-700 
