@@ -1,18 +1,19 @@
+"use client";
+
+import { useState } from "react";
+import { useAccounts } from "../hooks/useAccounts";
 import { Account } from "../types/accounts";
 
-type PrimaryAccountFormProps = {
-    account: Account;
-    onChange: (field: keyof Account, value: string) => void;
-    showTooltip: boolean;
-    toggleTooltip: () => void;
-};
+export default function PrimaryAccountForm() {
+    const { primaryAccount, setPrimaryAccount } = useAccounts();
 
-export default function PrimaryAccountForm({
-    account,
-    onChange,
-    showTooltip,
-    toggleTooltip,
-}: PrimaryAccountFormProps) {
+    const handlePrimaryChange = (field: keyof Account, value: string) => {
+        setPrimaryAccount({ ...primaryAccount, [field]: value });
+    };
+
+    const [showTooltip, setShowTooltip] = useState(false);
+    const toggleTooltip = () => setShowTooltip((prev) => !prev);
+
     return (
         <section>
             <h2 className="text-xl font-bold mb-4">Primary Account</h2>
@@ -22,8 +23,8 @@ export default function PrimaryAccountForm({
                         type="radio"
                         name="primaryMode"
                         value="credentials"
-                        checked={account.mode === "credentials"}
-                        onChange={() => onChange("mode", "credentials")}
+                        checked={primaryAccount.mode === "credentials"}
+                        onChange={() => handlePrimaryChange("mode", "credentials")}
                     />
                     <span>Email/Password</span>
                 </label>
@@ -32,8 +33,8 @@ export default function PrimaryAccountForm({
                         type="radio"
                         name="primaryMode"
                         value="authkey"
-                        checked={account.mode === "authkey"}
-                        onChange={() => onChange("mode", "authkey")}
+                        checked={primaryAccount.mode === "authkey"}
+                        onChange={() => handlePrimaryChange("mode", "authkey")}
                     />
                     <span className="flex items-center">
                         AuthKey
@@ -48,8 +49,8 @@ export default function PrimaryAccountForm({
                             {showTooltip && (
                                 <div
                                     className="absolute top-full mt-2 left-1/2 -translate-x-1/2 
-                                        bg-gray-900/95 text-white text-sm rounded-lg p-3 w-72 
-                                        shadow-xl z-10 border border-gray-700 backdrop-blur-sm"
+                    bg-gray-900/95 text-white text-sm rounded-lg p-3 w-72 
+                    shadow-xl z-10 border border-gray-700 backdrop-blur-sm"
                                 >
                                     <strong className="text-blue-300">How to get your AuthKey:</strong>
                                     <ol className="list-decimal list-inside mt-1 space-y-1 text-gray-200">
@@ -78,26 +79,26 @@ export default function PrimaryAccountForm({
                                     <div className="absolute -top-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-gray-900/95 border-l border-t border-gray-700 rotate-45"></div>
                                 </div>
                             )}
-
                         </div>
                     </span>
                 </label>
             </div>
-            {account.mode === "credentials" ? (
+
+            {primaryAccount.mode === "credentials" ? (
                 <div className="space-y-4">
                     <input
                         type="email"
                         placeholder="Email"
                         className="w-full border border-gray-600 bg-gray-700 p-2 rounded-lg text-white placeholder-gray-400"
-                        value={account.email}
-                        onChange={(e) => onChange("email", e.target.value)}
+                        value={primaryAccount.email}
+                        onChange={(e) => handlePrimaryChange("email", e.target.value)}
                     />
                     <input
                         type="password"
                         placeholder="Password"
                         className="w-full border border-gray-600 bg-gray-700 p-2 rounded-lg text-white placeholder-gray-400"
-                        value={account.password}
-                        onChange={(e) => onChange("password", e.target.value)}
+                        value={primaryAccount.password}
+                        onChange={(e) => handlePrimaryChange("password", e.target.value)}
                     />
                 </div>
             ) : (
@@ -105,8 +106,8 @@ export default function PrimaryAccountForm({
                     type="text"
                     placeholder="AuthKey"
                     className="w-full border border-gray-600 bg-gray-700 p-2 rounded-lg text-white placeholder-gray-400"
-                    value={account.authkey}
-                    onChange={(e) => onChange("authkey", e.target.value)}
+                    value={primaryAccount.authkey}
+                    onChange={(e) => handlePrimaryChange("authkey", e.target.value)}
                 />
             )}
         </section>

@@ -6,27 +6,31 @@ import { AddonData } from "../types/addon";
 import { DEBRID_OPTIONS, SUPPORTED_ADDONS_DEBRID_OVERRIDE } from "../utils/debridOptions";
 import Alert from "./Alert";
 import { validateAccount } from "../utils/validation";
+import { useAccounts } from "../hooks/useAccounts";
 
 
 
 type CloneAccountFormProps = {
     index: number;
     account: Account;
-    onChange: (index: number, field: keyof Account, value: string | boolean) => void;
-    onRemove: (index: number) => void;
 };
 
 export default function CloneAccountForm({
     index,
     account,
-    onChange,
-    onRemove,
 }: CloneAccountFormProps) {
+    const { cloneAccounts, setCloneAccounts, removeAccount } = useAccounts();
     const [showModal, setShowModal] = useState(false);
     const [addons, setAddons] = useState<AddonData[]>([]);
     const [showSupportedModal, setShowSupportedModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+    const handleCloneChange = (index: number, field: keyof Account, value: string | boolean) => {
+        const updated = [...cloneAccounts];
+        updated[index] = { ...updated[index], [field]: value };
+        setCloneAccounts(updated);
+    };
 
     // disable scroll when modal is open
     useEffect(() => {
@@ -113,7 +117,7 @@ export default function CloneAccountForm({
                     <input
                         type="checkbox"
                         checked={account.selected ?? false}
-                        onChange={(e) => onChange(index, "selected", e.target.checked)}
+                        onChange={(e) => handleCloneChange(index, "selected", e.target.checked)}
                         className="h-5 w-5 border-2 border-gray-400 rounded-sm bg-gray-700 
                  checked:bg-blue-500 checked:border-blue-500 
                  focus:outline-none focus:ring-2 focus:ring-blue-400 
@@ -150,7 +154,7 @@ export default function CloneAccountForm({
                         type="button"
                         title="Toggle Debrid Override"
                         onClick={() =>
-                            onChange(index, "is_debrid_override", !account.is_debrid_override)
+                            handleCloneChange(index, "is_debrid_override", !account.is_debrid_override)
                         }
                         className={`flex items-center justify-center px-3 py-2 rounded-lg transition-colors ${account.is_debrid_override
                             ? "bg-green-500 hover:bg-green-600 text-gray-900"
@@ -165,7 +169,7 @@ export default function CloneAccountForm({
                     <button
                         type="button"
                         title="Remove Account"
-                        onClick={() => onRemove(index)}
+                        onClick={() => removeAccount(index)}
                         className="flex items-center px-3 py-2 rounded-lg bg-gray-600 hover:bg-gray-500 text-red-400"
                     >
                         <X className="w-5 h-5" strokeWidth={4} />
@@ -185,7 +189,7 @@ export default function CloneAccountForm({
                         name={`mode-${index}`}
                         value="credentials"
                         checked={account.mode === "credentials"}
-                        onChange={() => onChange(index, "mode", "credentials")}
+                        onChange={() => handleCloneChange(index, "mode", "credentials")}
                     />
                     <span>Email/Password</span>
                 </label>
@@ -195,7 +199,7 @@ export default function CloneAccountForm({
                         name={`mode-${index}`}
                         value="authkey"
                         checked={account.mode === "authkey"}
-                        onChange={() => onChange(index, "mode", "authkey")}
+                        onChange={() => handleCloneChange(index, "mode", "authkey")}
                     />
                     <span>AuthKey</span>
                 </label>
@@ -208,14 +212,14 @@ export default function CloneAccountForm({
                         placeholder={`Email #${index + 1}`}
                         className="w-full border border-gray-600 bg-gray-800 p-2 rounded-lg text-white placeholder-gray-400"
                         value={account.email}
-                        onChange={(e) => onChange(index, "email", e.target.value)}
+                        onChange={(e) => handleCloneChange(index, "email", e.target.value)}
                     />
                     <input
                         type="password"
                         placeholder={`Password #${index + 1}`}
                         className="w-full border border-gray-600 bg-gray-800 p-2 rounded-lg text-white placeholder-gray-400"
                         value={account.password}
-                        onChange={(e) => onChange(index, "password", e.target.value)}
+                        onChange={(e) => handleCloneChange(index, "password", e.target.value)}
                     />
                 </div>
             ) : (
@@ -224,7 +228,7 @@ export default function CloneAccountForm({
                     placeholder={`AuthKey #${index + 1}`}
                     className="w-full border border-gray-600 bg-gray-800 p-2 rounded-lg text-white placeholder-gray-400"
                     value={account.authkey}
-                    onChange={(e) => onChange(index, "authkey", e.target.value)}
+                    onChange={(e) => handleCloneChange(index, "authkey", e.target.value)}
                 />
             )}
 
@@ -247,7 +251,7 @@ export default function CloneAccountForm({
                         {/* Debrid Select */}
                         <select
                             value={account.debrid_type || ""}
-                            onChange={(e) => onChange(index, "debrid_type", e.target.value)}
+                            onChange={(e) => handleCloneChange(index, "debrid_type", e.target.value)}
                             className="border border-gray-600 bg-gray-800 p-2 rounded-lg text-white w-40"
                         >
                             {DEBRID_OPTIONS.map((option) => (
@@ -265,7 +269,7 @@ export default function CloneAccountForm({
                                     placeholder="Enter key"
                                     className="flex-1 border border-gray-600 bg-gray-800 p-2 rounded-lg text-white placeholder-gray-400"
                                     value={account.debrid_key || ""}
-                                    onChange={(e) => onChange(index, "debrid_key", e.target.value)}
+                                    onChange={(e) => handleCloneChange(index, "debrid_key", e.target.value)}
                                 />
                                 <a
                                     href={
@@ -326,7 +330,7 @@ export default function CloneAccountForm({
                     type="button"
                     title={`Clone Mode: ${account.clone_mode === "sync" ? "Sync" : "Append"}`}
                     onClick={() =>
-                        onChange(
+                        handleCloneChange(
                             index,
                             "clone_mode",
                             account.clone_mode === "sync" ? "append" : "sync"
