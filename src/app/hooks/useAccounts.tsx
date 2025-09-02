@@ -1,8 +1,36 @@
 "use client";
-import { useState, useEffect } from "react";
-import { Account } from "../types/accounts";
 
-export function useAccounts() {
+import { createContext, useContext, useState, useEffect } from "react";
+import { Account } from "../types/accounts";
+import { Addon } from "../types/addon";
+
+
+type AlertState = { type: "success" | "error"; message: string } | null;
+
+type AccountsContextType = {
+    primaryAccount: Account;
+    setPrimaryAccount: React.Dispatch<React.SetStateAction<Account>>;
+    cloneAccounts: Account[];
+    setCloneAccounts: React.Dispatch<React.SetStateAction<Account[]>>;
+    rememberDetails: boolean;
+    setRememberDetails: React.Dispatch<React.SetStateAction<boolean>>;
+    addAccount: () => void;
+    removeAccount: (index: number) => void;
+
+    // addon-related state
+    addons: Addon[];
+    setAddons: (addons: Addon[]) => void;
+
+
+    // Alert state
+    alert: AlertState;
+    setAlert: React.Dispatch<React.SetStateAction<AlertState>>;
+};
+
+const AccountsContext = createContext<AccountsContextType | undefined>(undefined);
+
+export const AccountsProvider = ({ children }: { children: React.ReactNode }) => {
+    // --- account state ---
     const [primaryAccount, setPrimaryAccount] = useState<Account>({
         mode: "credentials",
         email: "",
@@ -16,17 +44,27 @@ export function useAccounts() {
 
     const [cloneAccounts, setCloneAccounts] = useState<Account[]>([
         {
-            mode: "credentials", email: "", password: "", authkey: "",
+            mode: "credentials",
+            email: "",
+            password: "",
+            authkey: "",
             is_debrid_override: false,
             debrid_type: "",
             debrid_key: "",
-            clone_mode: "sync"
-        },
+            clone_mode: "sync",
+            selected: true,
+        }
     ]);
 
     const [rememberDetails, setRememberDetails] = useState(false);
+    // --- addon state ---
+    const [addons, setAddons] = useState<Addon[]>([]);
 
-    // Load accounts from localStorage
+    // Alert state
+    const [alert, setAlert] = useState<AlertState>(null);
+
+
+    // Load from localStorage on mount
     useEffect(() => {
         const saved = localStorage.getItem("stremio_acounts_v1");
         if (saved) {
@@ -43,61 +81,53 @@ export function useAccounts() {
         }
     }, []);
 
-    const saveToLocalStorage = () => {
-        if (!rememberDetails) {
-            localStorage.removeItem("stremio_acounts_v1");
-            return;
-        }
-        const encodedPrimary = btoa(JSON.stringify(primaryAccount));
-        const encodedClones = btoa(JSON.stringify(cloneAccounts));
-
-        localStorage.setItem(
-            "stremio_acounts_v1",
-            JSON.stringify({ primary: encodedPrimary, clones: encodedClones })
-        );
-    };
-
     const addAccount = () =>
         setCloneAccounts([
             ...cloneAccounts,
             {
-                mode: "credentials", email: "", password: "", authkey: "",
+                mode: "credentials",
+                email: "",
+                password: "",
+                authkey: "",
                 is_debrid_override: false,
                 debrid_type: "",
                 debrid_key: "",
-                clone_mode: "sync"
-            },
+                clone_mode: "sync",
+                selected: true,
+            }
         ]);
 
     const removeAccount = (index: number) =>
         setCloneAccounts(cloneAccounts.filter((_, i) => i !== index));
 
-    const handleCloneChange = (index: number, field: keyof Account, value: string | boolean) => {
-        const updated = [...cloneAccounts];
-        updated[index] = { ...updated[index], [field]: value };
-        setCloneAccounts(updated);
-    };
 
-    const handlePrimaryChange = (field: keyof Account, value: string) => {
-        setPrimaryAccount({ ...primaryAccount, [field]: value });
-    };
 
-    const handleBulkChange = (checked: boolean) => {
-        setCloneAccounts(prev => prev.map(acc => ({ ...acc, selected: checked })));
-    };
+    return (
+        <AccountsContext.Provider
+            value={{
+                primaryAccount,
+                setPrimaryAccount,
+                cloneAccounts,
+                setCloneAccounts,
+                rememberDetails,
+                setRememberDetails,
+                addAccount,
+                removeAccount,
+                // expose addons state
+                addons,
+                setAddons,
+                // alert state
+                alert,
+                setAlert,
+            }}
+        >
+            {children}
+        </AccountsContext.Provider>
+    );
+};
 
-    return {
-        primaryAccount,
-        setPrimaryAccount,
-        cloneAccounts,
-        setCloneAccounts,
-        rememberDetails,
-        setRememberDetails,
-        addAccount,
-        removeAccount,
-        handleCloneChange,
-        handlePrimaryChange,
-        saveToLocalStorage,
-        handleBulkChange
-    };
-}
+export const useAccounts = () => {
+    const ctx = useContext(AccountsContext);
+    if (!ctx) throw new Error("useAccounts must be used within AccountsProvider");
+    return ctx;
+};
