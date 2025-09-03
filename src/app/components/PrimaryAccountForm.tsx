@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useAccounts } from "../hooks/useAccounts";
 import { Account } from "../types/accounts";
+import ConfigurePrimary from "./ConfigurePrimary";
 
 export default function PrimaryAccountForm() {
     const { primaryAccount, setPrimaryAccount } = useAccounts();
@@ -110,6 +111,9 @@ export default function PrimaryAccountForm() {
                     onChange={(e) => handlePrimaryChange("authkey", e.target.value)}
                 />
             )}
+
+            <ConfigurePrimary />
+
         </section>
     );
 }
