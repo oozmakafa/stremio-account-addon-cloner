@@ -6,6 +6,7 @@ import { Puzzle } from "lucide-react";
 import { fetchAddons } from "../services/api";
 import { validateAccount } from "../utils/validation";
 import { useAccounts } from "../hooks/useAccounts";
+import { v4 as uuidv4 } from "uuid";
 
 export default function AddonSelector() {
     const { primaryAccount, setAlert, setAddons, addons } = useAccounts();
@@ -30,6 +31,7 @@ export default function AddonSelector() {
                 is_protected: addon.flags.protected,
                 is_configurable: addon.manifest?.behaviorHints?.configurable ?? false,
                 checked: true,
+                uuid: uuidv4(),
             }));
 
             setAddons(formatted);
