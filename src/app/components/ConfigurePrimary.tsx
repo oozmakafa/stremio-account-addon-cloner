@@ -135,20 +135,20 @@ export default function ConfigurePrimary() {
                         onChange={(updatedAddons) => setLocalAddons(updatedAddons)}
                     />
 
-                    <div className="flex justify-between items-center gap-3">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 w-full">
                         {/* Add Addon button (left) */}
                         <button
                             type="button"
                             onClick={handleAddAddon}
                             className="flex items-center justify-center gap-2 min-w-[120px] px-6 py-2 rounded-lg border border-green-600 shadow transition-colors
-                                bg-green-600/80 hover:bg-green-600 text-white"
+      bg-green-600/80 hover:bg-green-600 text-white w-full sm:w-auto"
                         >
                             <Plus className="w-4 h-4" />
                             Add Addon
                         </button>
 
                         {/* Cancel & Save buttons (right) */}
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                             <button
                                 type="button"
                                 onClick={handleCancelConfig}
@@ -157,7 +157,7 @@ export default function ConfigurePrimary() {
                                     ${saving
                                         ? "bg-gray-700 text-gray-500 cursor-not-allowed"
                                         : "bg-gray-800/50 hover:bg-gray-700/70 text-gray-300 hover:text-white"
-                                    }`}
+                                    } w-full sm:w-auto`}
                             >
                                 Cancel
                             </button>
@@ -170,13 +170,14 @@ export default function ConfigurePrimary() {
                                     ${saving
                                         ? "bg-blue-600 text-gray-300 cursor-not-allowed"
                                         : "bg-blue-600/80 hover:bg-blue-600 text-white"
-                                    }`}
+                                    } w-full sm:w-auto`}
                             >
                                 {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                                 Save
                             </button>
                         </div>
                     </div>
+
                 </div>
             )}
 
