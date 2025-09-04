@@ -1,23 +1,62 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import { Copy } from "lucide-react";
-import { Account } from "../types/accounts";
+import { useAccounts } from "../hooks/useAccounts";
+import { validateAccount, validateCloneAccounts } from "../utils/validation";
+import { cloneAddons } from "../services/api";
 
-type CloneControlsProps = {
-    loading: boolean;
-    cloneAccounts: Account[];
-    rememberDetails: boolean;
-    setRememberDetails: (value: boolean) => void;
-    handleSubmit: () => void;
-};
 
-export default function CloneControls({
-    loading,
-    cloneAccounts,
-    rememberDetails,
-    setRememberDetails,
-    handleSubmit,
-}: CloneControlsProps) {
+export default function CloneControls() {
+
+    const { cloneAccounts, primaryAccount, setRememberDetails, rememberDetails, setAlert, addons } = useAccounts();
+
+    const [loading, setLoading] = useState(false);
+
+
+    const saveToLocalStorage = () => {
+        if (!rememberDetails) {
+            localStorage.removeItem("stremio_acounts_v1");
+            return;
+        }
+        const encodedPrimary = btoa(JSON.stringify(primaryAccount));
+        const encodedClones = btoa(JSON.stringify(cloneAccounts));
+
+        localStorage.setItem(
+            "stremio_acounts_v1",
+            JSON.stringify({ primary: encodedPrimary, clones: encodedClones })
+        );
+    };
+
+    const handleSubmit = async () => {
+        const { valid, error } = validateAccount(primaryAccount, "Primary");
+        if (!valid) {
+            setAlert({ type: "error", message: error! });
+            return;
+        }
+
+        const cloneValidation = validateCloneAccounts(cloneAccounts);
+        if (!cloneValidation.valid) {
+            setAlert({ type: "error", message: cloneValidation.error! });
+            return;
+        }
+
+        setLoading(true);
+        setAlert(null);
+
+        try {
+            saveToLocalStorage();
+            const addonsToClone = addons.filter((addon) => addon.checked).map((addon) => addon.addon);
+            await cloneAddons(primaryAccount, cloneAccounts.filter((account) => account.selected), addonsToClone);
+            setAlert({ type: "success", message: "Addons cloned successfully!" });
+        } catch (err) {
+            if (err instanceof Error) {
+                setAlert({ type: "error", message: err.message });
+            }
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div>
             <button

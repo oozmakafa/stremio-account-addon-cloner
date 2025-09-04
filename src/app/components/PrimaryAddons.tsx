@@ -15,8 +15,14 @@ import {
     verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { AlertTriangle, Copy, ExternalLink, GripVertical } from "lucide-react";
-import { useState } from "react";
+import {
+    AlertTriangle,
+    Copy,
+    ExternalLink,
+    GripVertical,
+    Trash2,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 import { Addon } from "../types/addon";
 
 type Props = {
@@ -24,15 +30,16 @@ type Props = {
     onChange: (newAddons: Addon[]) => void;
 };
 
-function SortableAddonItem({
+function SortableAddonItemNoCheck({
     id, // manifest URL
-    uuid, // unique key for DnD
+    uuid, // unique drag-and-drop ID
     name,
     is_protected,
     is_configurable,
-    checked,
-    toggleAddonCheck,
-}: Addon & { toggleAddonCheck: (uuid: string) => void }) {
+    requestDelete,
+}: Addon & {
+    requestDelete: (uuid: string) => void;
+}) {
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id: uuid });
 
@@ -47,19 +54,10 @@ function SortableAddonItem({
             style={style}
             className="flex items-center justify-between text-gray-300 bg-gray-800 px-3 py-2 rounded-lg shadow select-none touch-none"
         >
-            <label className="flex items-center space-x-2 select-none">
-                <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={is_protected}
-                    onChange={() => toggleAddonCheck(uuid)}
-                    className="h-5 w-5 border-2 border-gray-400 rounded-sm bg-gray-700 checked:bg-blue-500 checked:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer transition-all"
-                />
-                <span>
-                    {name}
-                    {is_protected && " (Protected)"}
-                </span>
-            </label>
+            <span>
+                {name}
+                {is_protected && " (Protected)"}
+            </span>
 
             <div className="flex items-center space-x-2">
                 {/* Open link button */}
@@ -93,6 +91,24 @@ function SortableAddonItem({
                     <Copy size={18} />
                 </button>
 
+                {/* Delete (by uuid) */}
+                <button
+                    onClick={() => !is_protected && requestDelete(uuid)}
+                    disabled={is_protected}
+                    className={`p-1 ${is_protected
+                        ? "text-gray-500 opacity-50 cursor-not-allowed"
+                        : "text-red-400 hover:text-red-600"
+                        }`}
+                    aria-label="Delete addon"
+                    title={
+                        is_protected
+                            ? "Protected addon cannot be deleted"
+                            : "Delete this addon"
+                    }
+                >
+                    <Trash2 size={18} />
+                </button>
+
                 {/* Drag handle */}
                 <button
                     type="button"
@@ -109,7 +125,7 @@ function SortableAddonItem({
     );
 }
 
-export default function AddonsDragAndDrop({ addons, onChange }: Props) {
+export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
     const sensors = useSensors(
         useSensor(PointerSensor, {
             activationConstraint: { distance: 5 },
@@ -120,13 +136,14 @@ export default function AddonsDragAndDrop({ addons, onChange }: Props) {
     );
 
     const [showWarning, setShowWarning] = useState(false);
+    const [addonToDelete, setAddonToDelete] = useState<string | null>(null);
 
-    const toggleAddonCheck = (uuid: string) => {
-        const updated = addons.map((addon) =>
-            addon.uuid === uuid ? { ...addon, checked: !addon.checked } : addon
-        );
-        onChange(updated);
-    };
+    useEffect(() => {
+        document.body.style.overflow = addonToDelete ? "hidden" : "";
+        return () => {
+            document.body.style.overflow = "";
+        };
+    }, [addonToDelete]);
 
     const handleDragEnd = ({ active, over }: DragEndEvent) => {
         if (!over) return;
@@ -136,7 +153,7 @@ export default function AddonsDragAndDrop({ addons, onChange }: Props) {
             const newIndex = addons.findIndex((a) => a.uuid === over.id);
             const updated = arrayMove(addons, oldIndex, newIndex);
 
-            // Warn if protected addon was moved from first
+            // Warn if protected addon moved from first spot
             const firstBefore = addons[0];
             if (firstBefore.is_protected && updated[0].uuid !== firstBefore.uuid) {
                 setShowWarning(true);
@@ -146,6 +163,10 @@ export default function AddonsDragAndDrop({ addons, onChange }: Props) {
 
             onChange(updated);
         }
+    };
+
+    const handleDelete = (uuid: string) => {
+        onChange(addons.filter((addon) => addon.uuid !== uuid));
     };
 
     return (
@@ -170,15 +191,43 @@ export default function AddonsDragAndDrop({ addons, onChange }: Props) {
                 >
                     <div className="mt-3 space-y-2">
                         {addons.map((addon) => (
-                            <SortableAddonItem
+                            <SortableAddonItemNoCheck
                                 key={addon.uuid}
                                 {...addon}
-                                toggleAddonCheck={toggleAddonCheck}
+                                requestDelete={(uuid) => setAddonToDelete(uuid)}
                             />
                         ))}
                     </div>
                 </SortableContext>
             </DndContext>
+
+            {addonToDelete && (
+                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                    <div className="bg-gray-800 p-6 rounded-xl shadow-lg w-80 text-gray-200">
+                        <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
+                        <p className="mb-6 text-sm">
+                            Are you sure you want to delete this addon?
+                        </p>
+                        <div className="flex justify-end space-x-3">
+                            <button
+                                onClick={() => setAddonToDelete(null)}
+                                className="px-4 py-2 rounded-lg bg-gray-600 hover:bg-gray-500"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={() => {
+                                    handleDelete(addonToDelete);
+                                    setAddonToDelete(null);
+                                }}
+                                className="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600"
+                            >
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

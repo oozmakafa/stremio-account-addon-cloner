@@ -1,25 +1,49 @@
 "use client";
-import React from "react"; // adjust path if needed
+import React, { useState } from "react";
 import AddonsDragAndDrop from "./Addons";
-import { Addon } from "../types/addon";
+import { AddonData } from "../types/addon";
 import { Puzzle } from "lucide-react";
+import { fetchAddons } from "../services/api";
+import { validateAccount } from "../utils/validation";
+import { useAccounts } from "../hooks/useAccounts";
+import { v4 as uuidv4 } from "uuid";
 
+export default function AddonSelector() {
+    const { primaryAccount, setAlert, setAddons, addons } = useAccounts();
+    const [loadingAddon, setLoadingAddon] = useState(false);
+    const [showAddons, setShowAddons] = useState(false);
 
-type AddonSelectorProps = {
-    loadingAddon: boolean;
-    showAddons: boolean;
-    addons: Addon[];
-    setAddons: (addons: Addon[]) => void;
-    handleSelectAddonsClick: () => void;
-};
+    const handleSelectAddonsClick = async () => {
+        setLoadingAddon(true);
+        setAlert(null);
+        try {
+            const { valid, error } = validateAccount(primaryAccount, "Primary");
+            if (!valid) {
+                setAlert({ type: "error", message: error! });
+                return;
+            }
 
-export default function AddonSelector({
-    loadingAddon,
-    showAddons,
-    addons,
-    setAddons,
-    handleSelectAddonsClick,
-}: AddonSelectorProps) {
+            const addonsResult = await fetchAddons(primaryAccount);
+            const formatted = addonsResult.map((addon: AddonData) => ({
+                addon,
+                id: addon.transportUrl,
+                name: addon.manifest.name,
+                is_protected: addon.flags.protected,
+                is_configurable: addon.manifest?.behaviorHints?.configurable ?? false,
+                checked: true,
+                uuid: uuidv4(),
+            }));
+
+            setAddons(formatted);
+            setShowAddons(true);
+        } catch (err) {
+            if (err instanceof Error)
+                setAlert({ type: "error", message: `Failed to load addons: ${err.message}` });
+        } finally {
+            setLoadingAddon(false);
+        }
+    };
+
     return (
         <div>
             <button
