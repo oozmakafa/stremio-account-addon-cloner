@@ -19,22 +19,22 @@ import { AlertTriangle, Copy, ExternalLink, GripVertical } from "lucide-react";
 import { useState } from "react";
 import { Addon } from "../types/addon";
 
-
 type Props = {
     addons: Addon[];
     onChange: (newAddons: Addon[]) => void;
 };
 
 function SortableAddonItem({
-    id,
+    id, // manifest URL
+    uuid, // unique key for DnD
     name,
     is_protected,
     is_configurable,
     checked,
     toggleAddonCheck,
-}: Addon & { toggleAddonCheck: (id: string) => void }) {
+}: Addon & { toggleAddonCheck: (uuid: string) => void }) {
     const { attributes, listeners, setNodeRef, transform, transition } =
-        useSortable({ id });
+        useSortable({ id: uuid });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -52,7 +52,7 @@ function SortableAddonItem({
                     type="checkbox"
                     checked={checked}
                     disabled={is_protected}
-                    onChange={() => toggleAddonCheck(id)}
+                    onChange={() => toggleAddonCheck(uuid)}
                     className="h-5 w-5 border-2 border-gray-400 rounded-sm bg-gray-700 checked:bg-blue-500 checked:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400 cursor-pointer transition-all"
                 />
                 <span>
@@ -61,7 +61,6 @@ function SortableAddonItem({
                 </span>
             </label>
 
-            {/* Drag handle */}
             <div className="flex items-center space-x-2">
                 {/* Open link button */}
                 {!is_configurable ? (
@@ -73,21 +72,23 @@ function SortableAddonItem({
                     </span>
                 ) : (
                     <a
-                        href={id.replace("/manifest.json", "/configure")} // change to actual addon link
+                        href={id.replace("/manifest.json", "/configure")}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-gray-400 hover:text-white p-1"
                         aria-label="Open addon link"
+                        title="Open addon configuration page"
                     >
                         <ExternalLink size={18} />
                     </a>
                 )}
 
-                {/* Copy button */}
+                {/* Copy manifest URL */}
                 <button
                     onClick={() => navigator.clipboard.writeText(id)}
                     className="text-gray-400 hover:text-white p-1"
-                    aria-label="Copy addon ID"
+                    aria-label="Copy manifest URL to clipboard"
+                    title="Copy manifest URL to clipboard"
                 >
                     <Copy size={18} />
                 </button>
@@ -99,6 +100,7 @@ function SortableAddonItem({
                     {...listeners}
                     className="text-gray-400 hover:text-white cursor-grab active:cursor-grabbing p-1 touch-none"
                     aria-label="Drag handle"
+                    title="Drag to reorder addons"
                 >
                     <GripVertical size={18} />
                 </button>
@@ -109,40 +111,34 @@ function SortableAddonItem({
 
 export default function AddonsDragAndDrop({ addons, onChange }: Props) {
     const sensors = useSensors(
-        // Desktop / mouse
         useSensor(PointerSensor, {
-            activationConstraint: {
-                distance: 5, // drag only starts after moving 5px
-            },
+            activationConstraint: { distance: 5 },
         }),
-        // Mobile / touch
         useSensor(TouchSensor, {
-            activationConstraint: {
-                delay: 250, // long press 250ms before drag starts
-                tolerance: 10,
-            },
+            activationConstraint: { delay: 250, tolerance: 10 },
         })
     );
+
     const [showWarning, setShowWarning] = useState(false);
 
-    const toggleAddonCheck = (id: string) => {
+    const toggleAddonCheck = (uuid: string) => {
         const updated = addons.map((addon) =>
-            addon.id === id ? { ...addon, checked: !addon.checked } : addon
+            addon.uuid === uuid ? { ...addon, checked: !addon.checked } : addon
         );
         onChange(updated);
     };
 
     const handleDragEnd = ({ active, over }: DragEndEvent) => {
-        if (!over) return; // handle null case
+        if (!over) return;
 
         if (active.id !== over.id) {
-            const oldIndex = addons.findIndex((a) => a.id === active.id);
-            const newIndex = addons.findIndex((a) => a.id === over.id);
+            const oldIndex = addons.findIndex((a) => a.uuid === active.id);
+            const newIndex = addons.findIndex((a) => a.uuid === over.id);
             const updated = arrayMove(addons, oldIndex, newIndex);
 
-            // Check if a protected addon was moved from the first position
+            // Warn if protected addon was moved from first
             const firstBefore = addons[0];
-            if (firstBefore.is_protected && updated[0].id !== firstBefore.id) {
+            if (firstBefore.is_protected && updated[0].uuid !== firstBefore.uuid) {
                 setShowWarning(true);
             } else {
                 setShowWarning(false);
@@ -151,7 +147,6 @@ export default function AddonsDragAndDrop({ addons, onChange }: Props) {
             onChange(updated);
         }
     };
-
 
     return (
         <div className="space-y-3">
@@ -163,19 +158,20 @@ export default function AddonsDragAndDrop({ addons, onChange }: Props) {
                     </p>
                 </div>
             )}
+
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
                 onDragEnd={handleDragEnd}
             >
                 <SortableContext
-                    items={addons.map((a) => a.id)}
+                    items={addons.map((a) => a.uuid)}
                     strategy={verticalListSortingStrategy}
                 >
                     <div className="mt-3 space-y-2">
                         {addons.map((addon) => (
                             <SortableAddonItem
-                                key={addon.id}
+                                key={addon.uuid}
                                 {...addon}
                                 toggleAddonCheck={toggleAddonCheck}
                             />

@@ -30,4 +30,5 @@ export interface Addon {
     is_configurable: boolean;
     checked: boolean;
     addon: AddonData;
+    uuid: string;
 };

@@ -20,7 +20,6 @@ import {
     Copy,
     ExternalLink,
     GripVertical,
-    Pencil,
     Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -32,18 +31,17 @@ type Props = {
 };
 
 function SortableAddonItemNoCheck({
-    id,
+    id, // manifest URL
+    uuid, // unique drag-and-drop ID
     name,
     is_protected,
     is_configurable,
-    onEdit,
-    requestDelete, // 👈 only this now
+    requestDelete,
 }: Addon & {
-    onEdit: (id: string) => void;
-    requestDelete: (id: string) => void;
+    requestDelete: (uuid: string) => void;
 }) {
     const { attributes, listeners, setNodeRef, transform, transition } =
-        useSortable({ id });
+        useSortable({ id: uuid });
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -61,18 +59,7 @@ function SortableAddonItemNoCheck({
                 {is_protected && " (Protected)"}
             </span>
 
-            {/* Right side actions */}
             <div className="flex items-center space-x-2">
-                {/* Edit button (only if configurable) */}
-                <button
-                    onClick={() => onEdit(id)}
-                    className="text-gray-400 hover:text-white p-1"
-                    aria-label="Edit addon"
-                    title="Edit addon settings"
-                >
-                    <Pencil size={18} />
-                </button>
-
                 {/* Open link button */}
                 {!is_configurable ? (
                     <span
@@ -94,30 +81,33 @@ function SortableAddonItemNoCheck({
                     </a>
                 )}
 
-                {/* Copy button */}
+                {/* Copy manifest URL */}
                 <button
                     onClick={() => navigator.clipboard.writeText(id)}
                     className="text-gray-400 hover:text-white p-1"
-                    aria-label="Copy addon ID"
-                    title="Copy addon URL to clipboard"
+                    aria-label="Copy manifest URL to clipboard"
+                    title="Copy manifest URL to clipboard"
                 >
                     <Copy size={18} />
                 </button>
 
-                {/* Delete button (disabled if protected) */}
+                {/* Delete (by uuid) */}
                 <button
-                    onClick={() => !is_protected && requestDelete(id)}
+                    onClick={() => !is_protected && requestDelete(uuid)}
                     disabled={is_protected}
                     className={`p-1 ${is_protected
                         ? "text-gray-500 opacity-50 cursor-not-allowed"
                         : "text-red-400 hover:text-red-600"
                         }`}
                     aria-label="Delete addon"
-                    title={is_protected ? "Protected addon cannot be deleted" : "Delete this addon"}
+                    title={
+                        is_protected
+                            ? "Protected addon cannot be deleted"
+                            : "Delete this addon"
+                    }
                 >
                     <Trash2 size={18} />
                 </button>
-
 
                 {/* Drag handle */}
                 <button
@@ -130,9 +120,7 @@ function SortableAddonItemNoCheck({
                 >
                     <GripVertical size={18} />
                 </button>
-
             </div>
-
         </div>
     );
 }
@@ -151,12 +139,7 @@ export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
     const [addonToDelete, setAddonToDelete] = useState<string | null>(null);
 
     useEffect(() => {
-        if (addonToDelete) {
-            document.body.style.overflow = "hidden";
-        } else {
-            document.body.style.overflow = "";
-        }
-
+        document.body.style.overflow = addonToDelete ? "hidden" : "";
         return () => {
             document.body.style.overflow = "";
         };
@@ -166,13 +149,13 @@ export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
         if (!over) return;
 
         if (active.id !== over.id) {
-            const oldIndex = addons.findIndex((a) => a.id === active.id);
-            const newIndex = addons.findIndex((a) => a.id === over.id);
+            const oldIndex = addons.findIndex((a) => a.uuid === active.id);
+            const newIndex = addons.findIndex((a) => a.uuid === over.id);
             const updated = arrayMove(addons, oldIndex, newIndex);
 
             // Warn if protected addon moved from first spot
             const firstBefore = addons[0];
-            if (firstBefore.is_protected && updated[0].id !== firstBefore.id) {
+            if (firstBefore.is_protected && updated[0].uuid !== firstBefore.uuid) {
                 setShowWarning(true);
             } else {
                 setShowWarning(false);
@@ -182,13 +165,8 @@ export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
         }
     };
 
-    const handleDelete = (id: string) => {
-        onChange(addons.filter((addon) => addon.id !== id));
-    };
-
-    const handleEdit = (id: string) => {
-        // For now just open the configure link — or hook into custom logic
-        window.open(id.replace("/manifest.json", "/configure"), "_blank");
+    const handleDelete = (uuid: string) => {
+        onChange(addons.filter((addon) => addon.uuid !== uuid));
     };
 
     return (
@@ -208,16 +186,15 @@ export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
                 onDragEnd={handleDragEnd}
             >
                 <SortableContext
-                    items={addons.map((a) => a.id)}
+                    items={addons.map((a) => a.uuid)}
                     strategy={verticalListSortingStrategy}
                 >
                     <div className="mt-3 space-y-2">
                         {addons.map((addon) => (
                             <SortableAddonItemNoCheck
-                                key={addon.id}
+                                key={addon.uuid}
                                 {...addon}
-                                requestDelete={(id) => setAddonToDelete(id)}
-                                onEdit={handleEdit}
+                                requestDelete={(uuid) => setAddonToDelete(uuid)}
                             />
                         ))}
                     </div>
