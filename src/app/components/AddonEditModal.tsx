@@ -99,7 +99,7 @@ export default function AddonEditModal({
                     {!isDisabled && (
                         <button
                             onClick={handleDisable}
-                            disabled={loading}
+                            disabled={loading || addonToEdit.is_protected}
                             className="flex-1 px-4 py-2 rounded-lg bg-gray-700 hover:bg-gray-600 text-yellow-400 border border-gray-600 transition-colors disabled:opacity-50"
                         >
                             Disable
