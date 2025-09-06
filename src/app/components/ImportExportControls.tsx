@@ -10,7 +10,6 @@ export default function ImportExportControls() {
 
     // Export accounts as JSON
     const handleExport = () => {
-
         const dataStr = JSON.stringify({ primary: primaryAccount, clones: cloneAccounts }, null, 2);
         const blob = new Blob([dataStr], { type: "application/json" });
         const url = URL.createObjectURL(blob);
@@ -46,27 +45,37 @@ export default function ImportExportControls() {
     };
 
     return (
-        <div className="flex justify-end items-center gap-4">
-            <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow"
-            >
-                <Upload size={18} /> Import
-            </button>
-            <input
-                ref={fileInputRef}
-                type="file"
-                accept="application/json"
-                className="hidden"
-                onChange={handleImport}
-            />
+        <div className="flex flex-col gap-1">
+            {/* Buttons Row */}
+            <div className="flex justify-end items-center gap-4">
+                <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow"
+                >
+                    <Upload size={18} /> Import
+                </button>
+                <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="application/json"
+                    className="hidden"
+                    onChange={handleImport}
+                />
 
-            <button
-                onClick={handleExport}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow"
-            >
-                <Download size={18} /> Export
-            </button>
+                <button
+                    onClick={handleExport}
+                    className="flex items-center gap-2 px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow"
+                >
+                    <Download size={18} /> Export
+                </button>
+            </div>
+
+            {/* Info Note aligned right */}
+            <div className="flex justify-end">
+                <p className="text-xs text-gray-400 italic">
+                    Note: It only exports <span className="font-semibold">account details</span>, not addons.
+                </p>
+            </div>
         </div>
     );
 }
