@@ -60,7 +60,7 @@ export default function ConfigurePrimary() {
             }
 
             const addonsResult = await fetchAddons(primaryAccount);
-            const formatted = addonsResult.map((addon: AddonData, index) => ({
+            const formatted = addonsResult.map((addon: AddonData) => ({
                 addon,
                 id: addon.transportUrl,
                 name: addon.manifest.name,
