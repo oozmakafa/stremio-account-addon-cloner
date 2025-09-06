@@ -13,6 +13,9 @@ interface AddonManifest {
     id: string;
     name: string;
     behaviorHints: BehaviorHints;
+    types?: string[];
+    resources?: object[];
+    catalogs?: object[];
 
 }
 

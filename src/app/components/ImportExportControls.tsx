@@ -73,7 +73,7 @@ export default function ImportExportControls() {
             {/* Info Note aligned right */}
             <div className="flex justify-end">
                 <p className="text-xs text-gray-400 italic">
-                    Note: It only exports <span className="font-semibold">account details</span>, not addons.
+                    Note: Only <span className="font-semibold">account details</span> are exported, not addons.
                 </p>
             </div>
         </div>

@@ -18,12 +18,14 @@ import { CSS } from "@dnd-kit/utilities";
 import {
     AlertTriangle,
     Copy,
+    Edit2,
     ExternalLink,
     GripVertical,
     Trash2,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Addon } from "../types/addon";
+import AddonEditModal from "./AddonEditModal";
 
 type Props = {
     addons: Addon[];
@@ -36,12 +38,19 @@ function SortableAddonItemNoCheck({
     name,
     is_protected,
     is_configurable,
+    checked,
+    addon,
     requestDelete,
+    onEdit,
 }: Addon & {
     requestDelete: (uuid: string) => void;
+    onEdit: (addon: Addon) => void;
 }) {
     const { attributes, listeners, setNodeRef, transform, transition } =
         useSortable({ id: uuid });
+
+    const disabled = addon?.transportUrl?.startsWith("disabled:");
+
 
     const style = {
         transform: CSS.Transform.toString(transform),
@@ -52,19 +61,45 @@ function SortableAddonItemNoCheck({
         <div
             ref={setNodeRef}
             style={style}
-            className="flex items-center justify-between text-gray-300 bg-gray-800 px-3 py-2 rounded-lg shadow select-none touch-none"
+            className={`flex items-center justify-between px-3 py-2 rounded-lg shadow select-none touch-none
+        ${disabled ? "bg-gray-700 text-gray-500 italic" : "bg-gray-800 text-gray-300"}`}
         >
             <span>
                 {name}
                 {is_protected && " (Protected)"}
+                {disabled && " (Disabled)"}
             </span>
 
             <div className="flex items-center space-x-2">
+                {/* Edit button */}
+                <button
+                    onClick={() =>
+                        onEdit({
+                            id,
+                            uuid,
+                            name,
+                            is_protected,
+                            is_configurable,
+                            checked,
+                            addon,
+                        })
+                    }
+                    className="text-gray-400 hover:text-blue-400 p-1"
+                    aria-label="Edit addon"
+                    title="Edit addon"
+                >
+                    <Edit2 size={18} />
+                </button>
+
                 {/* Open link button */}
-                {!is_configurable ? (
+                {!is_configurable || disabled ? (
                     <span
                         className="text-gray-500 opacity-50 cursor-not-allowed p-1"
-                        title="Protected addon – link disabled"
+                        title={
+                            disabled
+                                ? "Disabled addon – link disabled"
+                                : "Protected addon – link disabled"
+                        }
                     >
                         <ExternalLink size={18} />
                     </span>
@@ -84,9 +119,17 @@ function SortableAddonItemNoCheck({
                 {/* Copy manifest URL */}
                 <button
                     onClick={() => navigator.clipboard.writeText(id)}
-                    className="text-gray-400 hover:text-white p-1"
+                    disabled={disabled}
+                    className={`p-1 ${disabled
+                        ? "text-gray-500 opacity-50 cursor-not-allowed"
+                        : "text-gray-400 hover:text-white"
+                        }`}
                     aria-label="Copy manifest URL to clipboard"
-                    title="Copy manifest URL to clipboard"
+                    title={
+                        disabled
+                            ? "Disabled addon cannot be copied"
+                            : "Copy manifest URL to clipboard"
+                    }
                 >
                     <Copy size={18} />
                 </button>
@@ -114,9 +157,17 @@ function SortableAddonItemNoCheck({
                     type="button"
                     {...attributes}
                     {...listeners}
-                    className="text-gray-400 hover:text-white cursor-grab active:cursor-grabbing p-1 touch-none"
+                    disabled={disabled}
+                    className={`p-1 ${disabled
+                        ? "text-gray-500 opacity-50 cursor-not-allowed"
+                        : "text-gray-400 hover:text-white cursor-grab active:cursor-grabbing touch-none"
+                        }`}
                     aria-label="Drag handle"
-                    title="Drag to reorder addons"
+                    title={
+                        disabled
+                            ? "Disabled addon cannot be reordered"
+                            : "Drag to reorder addons"
+                    }
                 >
                     <GripVertical size={18} />
                 </button>
@@ -124,6 +175,7 @@ function SortableAddonItemNoCheck({
         </div>
     );
 }
+
 
 export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
     const sensors = useSensors(
@@ -137,6 +189,7 @@ export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
 
     const [showWarning, setShowWarning] = useState(false);
     const [addonToDelete, setAddonToDelete] = useState<string | null>(null);
+    const [addonToEdit, setAddonToEdit] = useState<Addon | null>(null);
 
     useEffect(() => {
         document.body.style.overflow = addonToDelete ? "hidden" : "";
@@ -195,6 +248,7 @@ export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
                                 key={addon.uuid}
                                 {...addon}
                                 requestDelete={(uuid) => setAddonToDelete(uuid)}
+                                onEdit={(addon) => setAddonToEdit(addon)}
                             />
                         ))}
                     </div>
@@ -228,6 +282,13 @@ export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
                     </div>
                 </div>
             )}
+
+            <AddonEditModal
+                addonToEdit={addonToEdit}
+                addons={addons}
+                onChange={onChange}
+                onClose={() => setAddonToEdit(null)}
+            />
         </div>
     );
 }
