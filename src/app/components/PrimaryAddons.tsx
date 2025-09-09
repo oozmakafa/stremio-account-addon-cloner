@@ -192,11 +192,11 @@ export default function AddonsDragAndDropNoCheck({ addons, onChange }: Props) {
     const [addonToEdit, setAddonToEdit] = useState<Addon | null>(null);
 
     useEffect(() => {
-        document.body.style.overflow = addonToDelete ? "hidden" : "";
+        document.body.style.overflow = addonToDelete || addonToEdit ? "hidden" : "";
         return () => {
             document.body.style.overflow = "";
         };
-    }, [addonToDelete]);
+    }, [addonToDelete, addonToEdit]);
 
     const handleDragEnd = ({ active, over }: DragEndEvent) => {
         if (!over) return;
