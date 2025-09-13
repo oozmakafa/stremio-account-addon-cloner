@@ -4,14 +4,11 @@ import { Copy } from "lucide-react";
 import { useAccounts } from "../hooks/useAccounts";
 import { validateAccount, validateCloneAccounts } from "../utils/validation";
 import { cloneAddons } from "../services/api";
-
+import { Account } from "../types/accounts";
 
 export default function CloneControls() {
-
     const { cloneAccounts, primaryAccount, setRememberDetails, rememberDetails, setAlert, addons } = useAccounts();
-
     const [loading, setLoading] = useState(false);
-
 
     const saveToLocalStorage = () => {
         if (!rememberDetails) {
@@ -46,7 +43,11 @@ export default function CloneControls() {
         try {
             saveToLocalStorage();
             const addonsToClone = addons.filter((addon) => addon.checked).map((addon) => addon.addon);
-            await cloneAddons(primaryAccount, cloneAccounts.filter((account) => account.selected), addonsToClone);
+            await cloneAddons(
+                primaryAccount,
+                cloneAccounts.filter((account) => account.selected),
+                addonsToClone
+            );
             setAlert({ type: "success", message: "Addons cloned successfully!" });
         } catch (err) {
             if (err instanceof Error) {
@@ -57,8 +58,21 @@ export default function CloneControls() {
         }
     };
 
+    const getAccountsStats = () => {
+        const selectedAccounts = cloneAccounts.filter((account: Account) => account.selected).length;
+        const totalAccounts = cloneAccounts.length;
+        return `${selectedAccounts} of ${totalAccounts} accounts selected`;
+    };
+
     return (
         <div>
+            {/* stats above button */}
+            {!loading && (
+                <div className="mb-2 text-sm text-gray-300 text-center">
+                    {getAccountsStats()}
+                </div>
+            )}
+
             <button
                 type="button"
                 onClick={handleSubmit}
