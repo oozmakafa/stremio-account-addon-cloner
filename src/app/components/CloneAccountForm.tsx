@@ -288,6 +288,19 @@ export default function CloneAccountForm({
                         )}
                     </div>
 
+                    {/* Referral link if debrid is torbox */}
+                    {account.debrid_type === "torbox" && (
+                        <a
+                            href="https://torbox.app/subscription?referral=916cba88-0186-4577-b449-0a5d7f820185"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm text-blue-400 hover:text-blue-300 underline flex items-center gap-1"
+                        >
+                            <ExternalLink className="w-4 h-4" />
+                            Support me by using my Torbox referral link
+                        </a>
+                    )}
+
 
                     {/* Supported Override Modal */}
                     {showSupportedModal && (

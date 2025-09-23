@@ -16,6 +16,22 @@ const Footer = () => {
                     </Link>
                 </p>
 
+                {/* Torbox referral link with icon */}
+                <p className="font-medium flex items-center justify-center gap-2">
+                    <img
+                        src="/torbox-logo.svg"
+                        alt="Torbox"
+                        className="w-5 h-5"
+                    />
+                    <Link
+                        href="https://torbox.app/subscription?referral=916cba88-0186-4577-b449-0a5d7f820185"
+                        target="_blank"
+                        className="text-gray-300 hover:text-blue-400 transition-colors"
+                    >
+                        Support me by using my Torbox referral link
+                    </Link>
+                </p>
+
                 <p>
                     Developed by{" "}
                     <span className="text-gray-200 font-semibold">Oozmakafa</span> with the help of ChatGPT
