@@ -98,7 +98,7 @@ function SortableAddonItem({
                     type="button"
                     {...attributes}
                     {...listeners}
-                    className="text-gray-400 hover:text-white cursor-grab active:cursor-grabbing p-1 touch-none"
+                    className="text-gray-400 hover:text-white cursor-grab active:cursor-grabbing p-1"
                     aria-label="Drag handle"
                     title="Drag to reorder addons"
                 >
