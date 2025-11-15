@@ -30,7 +30,7 @@ export default function AddonSelector() {
                 name: addon.manifest.name,
                 is_protected: addon.flags.protected,
                 is_configurable: addon.manifest?.behaviorHints?.configurable ?? false,
-                checked: true,
+                checked: addon.manifest.name.includes("[DISABLED]") ? false : true, // Pre-select only active addons
                 uuid: uuidv4(),
             }));
 
