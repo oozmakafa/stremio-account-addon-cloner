@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Account } from "../types/accounts";
-import { Copy, ExternalLink, HelpCircle, Key, Loader2, Puzzle, ToggleLeft, ToggleRight, Trash2, Wrench, X } from "lucide-react";
+import { Copy, ExternalLink, Eye, EyeOff, HelpCircle, Key, Loader2, Puzzle, ToggleLeft, ToggleRight, Trash2, Wrench, X } from "lucide-react";
 import { fetchAddons, updateAddons } from "../services/api";
 import { AddonData } from "../types/addon";
 import { DEBRID_OPTIONS, SUPPORTED_ADDONS_DEBRID_OVERRIDE } from "../utils/debridOptions";
@@ -25,6 +25,7 @@ export default function CloneAccountForm({
     const [showSupportedModal, setShowSupportedModal] = useState(false);
     const [loading, setLoading] = useState(false);
     const [alert, setAlert] = useState<{ type: "success" | "error"; message: string } | null>(null);
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleCloneChange = (index: number, field: keyof Account, value: string | boolean) => {
         const updated = [...cloneAccounts];
@@ -214,13 +215,30 @@ export default function CloneAccountForm({
                         value={account.email}
                         onChange={(e) => handleCloneChange(index, "email", e.target.value)}
                     />
-                    <input
-                        type="password"
-                        placeholder={`Password #${index + 1}`}
-                        className="w-full border border-gray-600 bg-gray-800 p-2 rounded-lg text-white placeholder-gray-400"
-                        value={account.password}
-                        onChange={(e) => handleCloneChange(index, "password", e.target.value)}
-                    />
+                    <div className="relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder={`Password #${index + 1}`}
+                            className="w-full border border-gray-600 bg-gray-800 p-2 pr-10 rounded-lg text-white placeholder-gray-400"
+                            value={account.password}
+                            onChange={(e) => handleCloneChange(index, "password", e.target.value)}
+                        />
+
+                        {/* Eye toggle */}
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                            title={showPassword ? "Hide password" : "Show password"}
+                        >
+                            {showPassword ? (
+                                <EyeOff className="w-5 h-5" />
+                            ) : (
+                                <Eye className="w-5 h-5" />
+                            )}
+                        </button>
+                    </div>
+
                 </div>
             ) : (
                 <input
