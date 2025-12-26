@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useAccounts } from "../hooks/useAccounts";
 import { Account } from "../types/accounts";
 import ConfigurePrimary from "./ConfigurePrimary";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function PrimaryAccountForm() {
     const { primaryAccount, setPrimaryAccount } = useAccounts();
@@ -14,6 +15,8 @@ export default function PrimaryAccountForm() {
 
     const [showTooltip, setShowTooltip] = useState(false);
     const toggleTooltip = () => setShowTooltip((prev) => !prev);
+    const [showPassword, setShowPassword] = useState(false);
+
 
     return (
         <section>
@@ -94,13 +97,30 @@ export default function PrimaryAccountForm() {
                         value={primaryAccount.email}
                         onChange={(e) => handlePrimaryChange("email", e.target.value)}
                     />
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        className="w-full border border-gray-600 bg-gray-700 p-2 rounded-lg text-white placeholder-gray-400"
-                        value={primaryAccount.password}
-                        onChange={(e) => handlePrimaryChange("password", e.target.value)}
-                    />
+                    <div className="relative">
+                        <input
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Password"
+                            className="w-full border border-gray-600 bg-gray-700 p-2 pr-10 rounded-lg text-white placeholder-gray-400"
+                            value={primaryAccount.password}
+                            onChange={(e) => handlePrimaryChange("password", e.target.value)}
+                        />
+
+                        {/* Eye toggle */}
+                        <button
+                            type="button"
+                            onClick={() => setShowPassword((prev) => !prev)}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-200"
+                            title={showPassword ? "Hide password" : "Show password"}
+                        >
+                            {showPassword ? (
+                                <EyeOff className="w-5 h-5" />
+                            ) : (
+                                <Eye className="w-5 h-5" />
+                            )}
+                        </button>
+                    </div>
+
                 </div>
             ) : (
                 <input
