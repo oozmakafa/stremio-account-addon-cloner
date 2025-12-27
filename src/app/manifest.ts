@@ -7,16 +7,16 @@ export default function manifest(): MetadataRoute.Manifest {
         description: "Stremio Account Addon Cloner PWA",
         start_url: "/",
         display: "standalone",
-        background_color: "#822d7dff",
-        theme_color: "#000000",
+        background_color: "#822d7d",
+        theme_color: "#822d7d",
         icons: [
             {
-                src: "/logo.png",
+                src: "/logo-192.png",
                 sizes: "192x192",
                 type: "image/png",
             },
             {
-                src: "/logo.png",
+                src: "/logo-512.png",
                 sizes: "500x500",
                 type: "image/png",
             },
