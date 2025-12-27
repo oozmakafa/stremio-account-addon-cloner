@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
     return {
         name: "Stremio Account Addon Cloner",
-        short_name: "SAAC",
+        short_name: "Addon Cloner",
         description: "Stremio Account Addon Cloner PWA",
         start_url: "/",
         display: "standalone",
