@@ -3,7 +3,7 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
     return {
         name: "Stremio Account Addon Cloner",
-        short_name: "Addon Cloner",
+        short_name: "Stremio Addon Cloner",
         description: "Stremio Account Addon Cloner PWA",
         start_url: "/",
         display: "standalone",
@@ -12,7 +12,7 @@ export default function manifest(): MetadataRoute.Manifest {
         icons: [
             {
                 src: "/logo.png",
-                sizes: "500x500",
+                sizes: "1024x1024",
                 type: "image/png",
             },
         ],
